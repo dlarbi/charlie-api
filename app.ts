@@ -55,15 +55,19 @@ app.get('/', (req: express.Request, res: express.Response) => {
   app.post('/rating/website', async (req: express.Request, res: express.Response) => {
 	  try {
 		  const { url, count } = req.body;
-		  if (count && count < 10) {
+		  if (count && count <= 10) {
 			  const urls = await services.sitemappingService.getUrlsFromParentUrl(url, count);
 			  
 			  const results = [];
 			  for (let i = 0; i < urls.length; i++) {
 				const url = urls[i];
 				const text = await services.textScrapingService.getTextByUrl(url);
-				const textContent: RatedTextContent = await services.contentRatingService.getRatedTextContent(text, url);
-				results.push(textContent);	
+				try { 
+					const textContent: RatedTextContent = await services.contentRatingService.getRatedTextContent(text, url);
+					results.push(textContent);	
+				} catch (e) {
+					console.log(e)
+				}
 			  }
 
 			  res.json({ results });

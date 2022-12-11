@@ -47,16 +47,23 @@ export class SitemappingService {
                     generator.stop();
                     resolve(urls);
                 }
-                urls.push(url);
+
+                const skipUrl = url.indexOf('sitemap') > -1 ||
+                    url.indexOf('site') > -1 ||
+                    url.indexOf('xml') > -1;
+                if (!skipUrl) {
+                    console.log(url);
+                    urls.push(url);
+                }
             });
     
             generator.on('done', (res: any) => {
-                console.log(`Sitemap ${filepath} completed`);
+                resolve(urls);
             });
 
             generator.on('error', (e: any) => {
-                reject(e);
-            })
+                console.log('ERROR getUrlsFromParentUrl', e);
+            });
 
             generator.start();
         });
