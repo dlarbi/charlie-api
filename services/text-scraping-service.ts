@@ -30,7 +30,7 @@ export class TextScrapingService {
         }  
     }
 
-    getTextByUrls = async (urls: string[]) => {
+    getTextByUrls = async (urls: string[]): Promise<{ text: string, title: string, url: string }[]> => {
         const result = [];
         for (let i = 0; i < urls.length; i++) {
             const url = urls[i];

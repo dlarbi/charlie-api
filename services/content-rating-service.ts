@@ -19,9 +19,9 @@ let textContentModel: TextContentModel;
 })();
 
 export class ContentRatingService {
-    saveRatedTextContent = async (textContent: RatedTextContent) => {
+    saveRatedTextContent = async (textContent: RatedTextContent, projectId: string) => {
         let result: string;
-
+        textContent.projectId = projectId;
         // if this _id exists, update it
         if (textContent._id) {
             await textContentModel.updateRatedTextContent(textContent);
@@ -40,10 +40,10 @@ export class ContentRatingService {
         return textContentModel.saveRatedTextContent(textContent);
     }
 
-    saveRatedTextContents = async (textContents: RatedTextContent[]): Promise<string[]> => {
+    saveRatedTextContents = async (textContents: RatedTextContent[], projectId: string): Promise<string[]> => {
         const ids = [];
         for(let i=0;i<textContents.length;i++) {
-            const id = await this.saveRatedTextContent(textContents[i]);
+            const id = await this.saveRatedTextContent(textContents[i], projectId);
             ids.push(id);
         }
         return ids;
@@ -55,10 +55,7 @@ export class ContentRatingService {
         const urls = await services.sitemappingService.getUrlsFromSitemap(sitemapFilepath);
         const textContentNotRated = await services.textScrapingService.getTextByUrls(urls);
         const textContents: RatedTextContent[] = await this.generateRatedTextContents(textContentNotRated);
-        return textContents.map((content) => {
-            content.projectId = crypto.createHash('md5').update(url).digest('hex');
-            return content;
-        });
+        return textContents;
     }
 
     generateRatedTextContent = async (text: string, title?: string, url?: string ): Promise<RatedTextContent> => {
@@ -80,7 +77,7 @@ export class ContentRatingService {
         };
     };
 
-    generateRatedTextContents = async (content: RatedTextContent[]) => {
+    generateRatedTextContents = async (content: { text: string, title: string, url: string }[]): Promise<RatedTextContent[]> => {
         const result = []
         for (let i = 0; i < content.length; i++) {
             const { text, title, url } = content[i];

@@ -65,13 +65,13 @@ app.get('/', (req: express.Request, res: express.Response) => {
 		  if (count && count <= 20) {
 			  const urls = await services.sitemappingService.getUrlsFromParentUrl(url, count);			  
 			  const textContentNotRated = await services.textScrapingService.getTextByUrls(urls);
-			  const textContent: RatedTextContent[] = await services.contentRatingService.generateRatedTextContents(textContentNotRated);
-			  await services.contentRatingService.saveRatedTextContents(textContent); 
+			  const textContent = await services.contentRatingService.generateRatedTextContents(textContentNotRated);
+			  await services.contentRatingService.saveRatedTextContents(textContent, url); 
 			  res.json({ results: textContent });
 		  } else {			  
 			  // TODO: Make this a job that kicks off later			  
 			  const textContent: RatedTextContent[] = await services.contentRatingService.generateRatedTextContentByCrawlSite(url);
-			  await services.contentRatingService.saveRatedTextContents(textContent);
+			  await services.contentRatingService.saveRatedTextContents(textContent, url);
 			  res.json({ results: textContent });
 		  }
 	  } catch (err) {
