@@ -3,6 +3,8 @@ export const exampleRatedTextContent: RatedTextContent = {
     _id: '12345',
     children: ['abc', 'def', 'ghi'],
     text: 'This is an example text content object.',
+    title: 'This is a title',
+    createdAt: new Date(),
     url: 'https://thoughtcatalog.com/daniell-koepke/2022/02/stop-apologizing-for-having-to-take-care-of-yourself-right-now/',
     rating: {
       id: '56789',

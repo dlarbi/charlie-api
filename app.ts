@@ -9,14 +9,20 @@ import { TextScrapingService } from './services/text-scraping-service';
 import { SitemappingService } from './services/sitemapping-service';
 
 const app = express();
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(function(req: express.Request, res: express.Response, next: any) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
+});
 
 const services = {
     contentRatingService: new ContentRatingService(),
 	textScrapingService: new TextScrapingService(),
 	sitemappingService: new SitemappingService()
 };
+
 app.get('/', (req: express.Request, res: express.Response) => {
 	try {
 	  res.send('Welome to the Charlie API');
@@ -29,11 +35,12 @@ app.get('/', (req: express.Request, res: express.Response) => {
   app.post('/rating/url', async (req: express.Request, res: express.Response) => {
 	  try {
 		  const { url } = req.body;
+		  console.log(req.body)
 		  
-		  const text = await services.textScrapingService.getTextByUrl(url);
-		  const textContent: RatedTextContent = await services.contentRatingService.getRatedTextContent(text, url);
+		  const { text, title } = await services.textScrapingService.getTextByUrl(url);
+		  const textContent: RatedTextContent = await services.contentRatingService.generateRatedTextContent(text, title, url);
 		  
-		  res.json({content: textContent});
+		  res.json({content: textContent });
 	  } catch (err) {
 		  console.error(err);
 		  res.status(500).send('Something went wrong');
@@ -44,7 +51,7 @@ app.get('/', (req: express.Request, res: express.Response) => {
 	  try {
 		  const { text } = req.body;
 		  
-		  const textContent: RatedTextContent = await services.contentRatingService.getRatedTextContent(text);
+		  const textContent: RatedTextContent = await services.contentRatingService.generateRatedTextContent(text);
 		  res.json({content: textContent});
 	  } catch (err) {
 		  console.error(err);
@@ -55,34 +62,16 @@ app.get('/', (req: express.Request, res: express.Response) => {
   app.post('/rating/website', async (req: express.Request, res: express.Response) => {
 	  try {
 		  const { url, count } = req.body;
-		  if (count && count <= 10) {
-			  const urls = await services.sitemappingService.getUrlsFromParentUrl(url, count);
-			  
-			  const results = [];
-			  for (let i = 0; i < urls.length; i++) {
-				const url = urls[i];
-				const text = await services.textScrapingService.getTextByUrl(url);
-				try { 
-					const textContent: RatedTextContent = await services.contentRatingService.getRatedTextContent(text, url);
-					results.push(textContent);	
-				} catch (e) {
-					console.log(e)
-				}
-			  }
-
-			  res.json({ results });
-		  } else {
-			  // This operation will take too long (crawl full site and analyze), so we use a queue
-			  
-			  // Generate and save sitemap to a filepath
-			  const sitemapMetadata = await services.sitemappingService.generateSitemap(url);
-			  
-			  // Publish the sitemap to a queue for later analysis
-
-			  res.json({
-				  message: `Ratings are being generated for the sitemap at ${url}`,
-				  sitemapPath: sitemapMetadata.filepath
-			  });
+		  if (count && count <= 20) {
+			  const urls = await services.sitemappingService.getUrlsFromParentUrl(url, count);			  
+			  const textContentNotRated = await services.textScrapingService.getTextByUrls(urls);
+			  const textContent: RatedTextContent[] = await services.contentRatingService.generateRatedTextContents(textContentNotRated);
+			  res.json({ results: textContent });
+		  } else {			  
+			  // TODO: Make this a job that kicks off later			  
+			  const textContent: RatedTextContent[] = await services.contentRatingService.generateRatedTextContentByCrawlSite(url);
+			  await services.contentRatingService.saveRatedTextContents(textContent);
+			  res.json({ results: textContent });
 		  }
 	  } catch (err) {
 		  console.error(err);

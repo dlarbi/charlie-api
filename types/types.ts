@@ -1,9 +1,11 @@
 export type RatedTextContent = {
     _id?: string;
     children?: Array<string>;
+    title?: string;
     text: string;
     rating: Rating;
     url?: string;
+    createdAt: Date | string;
 };
 
 export interface Rating {

@@ -8,10 +8,35 @@ const cleanText = (text: string) => {
 
 export class TextScrapingService {
     getTextByUrl = async (url: string) => {
-        const html = await axios.get(url);
-        const doc = new JSDOM(html.data, { url });
-        let reader = new Readability(doc.window.document);
-        let article = reader.parse();
-        return cleanText(article.textContent);
+        console.log(`BEGIN getTextByUrl: ${url}`);
+        try {
+            const html = await axios.get(url, { 
+                headers: { "Accept-Encoding": "gzip,deflate,compress" } 
+            });
+            const doc = new JSDOM(html.data, { url });
+            let reader = new Readability(doc.window.document);
+            let article = reader.parse();
+            console.log(`END getTextByUrl: ${url}`);
+            return {
+                text: cleanText(article.textContent),
+                title: article.title
+            };
+        } catch (e) {
+            console.log(`ERROR getTextByUrl: ${url}`, e);
+            return {
+                text: String(e),
+                title: 'GET_HTML_ERROR'
+            };
+        }  
+    }
+
+    getTextByUrls = async (urls: string[]) => {
+        const result = [];
+        for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
+            const { text, title } = await this.getTextByUrl(url);
+            result.push({ text, title, url });
+        }
+        return result;
     }
 }

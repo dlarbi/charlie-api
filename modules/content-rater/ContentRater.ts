@@ -4,6 +4,9 @@ import { AnalyserScore, AnalyserType, Rating } from '../../types/types';
 
 export class ContentRater {
     gpt2Detector: GPT2TextDetector = new GPT2TextDetector();
+    ErrorStatuses = {
+        RatingException: -1
+    }
     __constructor = () => {
     }
 
@@ -29,6 +32,14 @@ export class ContentRater {
               overall: this.calculateOverallRating(scores),
               scores: scores,
         };
+    }
+
+    getRatingError = () => {
+        return {
+            id: uuid(),
+            overall: this.ErrorStatuses.RatingException,
+            scores: [],
+      };
     }
 
     calculateOverallRating = (scores: Array<AnalyserScore>): number => {

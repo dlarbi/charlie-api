@@ -1,6 +1,6 @@
+import * as fs from 'fs';
 import * as crypto from 'crypto';
 const SitemapGenerator = require('sitemap-generator');
-
 export type SitemapOptions = {
     maxDepth?: number;
     filepath?: string;
@@ -14,29 +14,42 @@ export type SitemapMetadata = {
 
 export class SitemappingService {
     generateSitemap = async (url: string, options?: SitemapOptions): Promise<SitemapMetadata> => {
-        const filepath = `./tmp/sitemaps/${crypto.createHash('md5').update(url).digest('hex')}.xml`;
-        const generator = SitemapGenerator(url, {
-            filepath,
-            ...options
-        });
+        console.log(`BEGIN: generateSitemap`);
 
-        generator.on('done', (res: any) => {
-            console.log(`Sitemap ${filepath} completed`);
+        return new Promise(async (resolve, reject) => {
+            const filepath = this.getSitemapFilepath(url);
+            if (fs.existsSync(filepath)) {
+                console.log(`Sitemap ${filepath} completed`);
+                resolve({ filepath });
+            }
+            
+            const generator = SitemapGenerator(url, {
+                filepath,
+                ...options
+            });
+    
+            generator.on('done', (res: any) => {
+                console.log(`Sitemap ${filepath} completed`);
+                resolve({ filepath });
+            });
+    
+            generator.on('error', (e: any) => {
+                reject(e);
+            });
+    
+            generator.start();
         });
-
-        generator.on('add', (url) => {
-            console.log(url);
-        });
-
-        generator.start();
-        return {
-            filepath
-        }
     }
 
+    /**
+     * Better to use the generateSitemap and then getUrlsFromSitemap functions separately
+     * TODO: Remove this function
+     */
     getUrlsFromParentUrl = async (url: string, depth: number = 10): Promise<string[]> => {
-        return new Promise((resolve, reject) => {
-            const filepath = `./tmp/sitemaps/${crypto.createHash('md5').update(url).digest('hex')}.xml`;
+        console.log(`BEGIN: getUrlsFromParentUrl`);
+        return new Promise(async (resolve, reject) => {
+            const filepath = this.getSitemapFilepath(url);
+
             const generator = SitemapGenerator(url, {
                 filepath,
             });
@@ -67,5 +80,32 @@ export class SitemappingService {
 
             generator.start();
         });
+    }
+
+    getUrlsFromSitemap = async (sitemapFilepath: string) => {
+        console.log(`BEGIN getUrlsFromSitemap ${sitemapFilepath}`);
+        let sitemapUrls: string[] = [];
+        try {
+            const sitemapData = fs.readFileSync(sitemapFilepath);
+            const lines = sitemapData.toString().split("\n");
+            lines.forEach(line => {
+                console.log('debug getUrlsFromSitemap, line', line);
+                if (line.indexOf("<loc>") > -1) {
+                    const url = line.replace("<loc>", "").replace("</loc>", "");
+                    console.log(url, 'Pushed to sitemap');
+                    sitemapUrls.push(url);
+                }
+            });
+            console.log(`END getUrlsFromSitemap ${sitemapUrls}`);
+            return sitemapUrls;
+        } catch (err) {
+            console.error(err);
+            return [];
+        }
+    }
+
+    getSitemapFilepath = (url: string) => {
+        const result = `./tmp/sitemaps/${crypto.createHash('md5').update(url).digest('hex')}.xml`;
+        return result;
     }
 }

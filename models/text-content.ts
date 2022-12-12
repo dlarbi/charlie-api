@@ -1,82 +1,47 @@
-import { MongoClient, Db } from 'mongodb';
+// @ts-nocheck
+import { MongoClient, Db, Collection } from 'mongodb';
 import { RatedTextContent } from './../types/types';
 
-async function getAll(): Promise<RatedTextContent[]> {
-  const client = new MongoClient(process.env.MONGO_DB_URL);
-  await client.connect();
+export class TextContentModel {
+    db: Db;
+    collection: Collection;
+    async __constructor() {
+        const client = new MongoClient(process.env.MONGO_DB_URL);
+        await client.connect();
+        this.db = client.db(process.env.MONGO_DB_NAME);
+        this.collection = this.db.collection('textContent');
+    }
 
-  const db: Db = client.db(process.env.MONGO_DB_NAME);
-  const textContentCollection = db.collection('textContent');
-
-  const textContent = await textContentCollection.find().toArray();
-
-  client.close();
-
-  return textContent;
-}
-
-async function getById(id: string): Promise<RatedTextContent> {
-    const client = new MongoClient(process.env.MONGO_DB_URL);
-    await client.connect();
-  
-    const db: Db = client.db(process.env.MONGO_DB_NAME);
-    const textContentCollection = db.collection('textContent');
-  
-    const textContent = await textContentCollection.findOne({ _id: id });
-  
-    client.close();
-  
-    return textContent;
-}
-
-async function getByRatingId(ratingId: string): Promise<RatedTextContent> {
-    const client = new MongoClient(process.env.MONGO_DB_URL);
-    await client.connect();
-  
-    const db: Db = client.db(process.env.MONGO_DB_NAME);
-    const textContentCollection = db.collection('textContent');
-  
-    const textContent = await textContentCollection.findOne({ 'rating.id': ratingId });
-  
-    client.close();
-  
-    return textContent;
-}
-
-async function saveRatedTextContent(textContent: RatedTextContent): Promise<string> {
-  const client = new MongoClient(process.env.MONGO_DB_URL);
-  await client.connect();
-
-  const db: Db = client.db(process.env.MONGO_DB_NAME);
-  const textContentCollection = db.collection('textContent');
-
-  const savedRatedTextContent = await textContentCollection.insertOne(textContent);
-
-  client.close();
-
-  return savedRatedTextContent.insertedId;
-}
-
-async function updateRatedTextContent(id: string, textContent: RatedTextContent): Promise<void> {
-  const client = new MongoClient(process.env.MONGO_DB_URL);
-  await client.connect();
-
-  const db: Db = client.db(process.env.MONGO_DB_NAME);
-  const textContentCollection = db.collection('textContent');
-
-  await textContentCollection.updateOne({ _id: id }, { $set: textContent });
-
-  client.close();
-}
-
-async function deleteRatedTextContent(id: string): Promise<void> {
-  const client = new MongoClient(process.env.MONGO_DB_URL);
-  await client.connect();
-
-  const db: Db = client.db(process.env.MONGO_DB_NAME);
-  const textContentCollection = db.collection('textContent');
-
-  await textContentCollection.deleteOne({ _id: id });
-
-  client.close();
+    async getAll(): Promise<RatedTextContent[]> {
+        const textContent = await this.collection.find().toArray();
+        return textContent;
+    }
+    
+    async getById(id: string): Promise<RatedTextContent> {  
+        const textContent = await this.collection.findOne({ _id: id });
+        return textContent;
+    }
+    
+    async getByRatingId(ratingId: string): Promise<RatedTextContent> {
+        const textContent = await this.collection.findOne({ 'rating.id': ratingId });
+        return textContent;
+    }
+    
+    async saveRatedTextContent(textContent: RatedTextContent): Promise<string> {
+        const savedRatedTextContent = await this.collection.insertOne(textContent);
+        return savedRatedTextContent.insertedId;
+    }
+    
+    async saveRatedTextContents(textContents: RatedTextContent[]): Promise<string[]> {
+        const savedRatedTextContents = await this.collection.insertMany(textContents);
+        return savedRatedTextContents.insertedIds;
+    }
+    
+    async updateRatedTextContent(id: string, textContent: RatedTextContent): Promise<void> {
+        await this.collection.updateOne({ _id: id }, { $set: textContent });
+    }
+    
+    async deleteRatedTextContent(id: string): Promise<void> {
+      await this.collection.deleteOne({ _id: id });
+    }
 }
