@@ -4,6 +4,7 @@ export const exampleRatedTextContent: RatedTextContent = {
     children: ['abc', 'def', 'ghi'],
     text: 'This is an example text content object.',
     title: 'This is a title',
+    analysedAt: new Date(),
     createdAt: new Date(),
     url: 'https://thoughtcatalog.com/daniell-koepke/2022/02/stop-apologizing-for-having-to-take-care-of-yourself-right-now/',
     rating: {

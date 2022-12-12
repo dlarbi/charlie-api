@@ -2,46 +2,69 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 import { RatedTextContent } from './../types/types';
 
+const noProjectIdException = () => {
+  return new Error('Cannot save TextContent without a projectId');
+}
+
 export class TextContentModel {
     db: Db;
     collection: Collection;
-    async __constructor() {
+
+    connect = async () => {
         const client = new MongoClient(process.env.MONGO_DB_URL);
         await client.connect();
         this.db = client.db(process.env.MONGO_DB_NAME);
         this.collection = this.db.collection('textContent');
     }
 
-    async getAll(): Promise<RatedTextContent[]> {
+    getAll = async (): Promise<RatedTextContent[]> => {
         const textContent = await this.collection.find().toArray();
         return textContent;
     }
     
-    async getById(id: string): Promise<RatedTextContent> {  
+    getById = async (id: string): Promise<RatedTextContent> => {  
         const textContent = await this.collection.findOne({ _id: id });
         return textContent;
     }
     
-    async getByRatingId(ratingId: string): Promise<RatedTextContent> {
+    getByRatingId = async (ratingId: string): Promise<RatedTextContent> => {
         const textContent = await this.collection.findOne({ 'rating.id': ratingId });
         return textContent;
     }
+
+    getByUrlAndProjectId = async (url: string, projectId: string): Promise<RatedTextContent> => {
+      const textContent = await this.collection.findOne({ url, projectId });
+      return textContent;
+    }
     
-    async saveRatedTextContent(textContent: RatedTextContent): Promise<string> {
-        const savedRatedTextContent = await this.collection.insertOne(textContent);
+    saveRatedTextContent = async (textContent: RatedTextContent): Promise<string> => {
+        if (!textContent.projectId) {
+            throw noProjectIdException();
+        }
+
+        const savedRatedTextContent = this.collection.insertOne(textContent);
         return savedRatedTextContent.insertedId;
     }
-    
-    async saveRatedTextContents(textContents: RatedTextContent[]): Promise<string[]> {
-        const savedRatedTextContents = await this.collection.insertMany(textContents);
-        return savedRatedTextContents.insertedIds;
+
+    updateRatedTextContentByUrlAndProjectId = async (textContent: RatedTextContent): Promise<void> => {
+      if (!textContent.projectId) {
+        throw noProjectIdException();
+      }
+
+      await this.collection.updateOne({ 
+        url: textContent.url, 
+        projectId: textContent.projectId 
+      }, { $set: textContent });
     }
     
-    async updateRatedTextContent(id: string, textContent: RatedTextContent): Promise<void> {
-        await this.collection.updateOne({ _id: id }, { $set: textContent });
+    updateRatedTextContent = async (textContent: RatedTextContent): Promise<void> => {
+        if (!textContent.projectId) {
+          throw noProjectIdException();
+        }
+        await this.collection.updateOne({ _id: textContent._id }, { $set: textContent });
     }
     
-    async deleteRatedTextContent(id: string): Promise<void> {
+    deleteRatedTextContent = async (id: string): Promise<void> => {
       await this.collection.deleteOne({ _id: id });
     }
 }

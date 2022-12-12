@@ -1,3 +1,5 @@
+import * as crypto from 'crypto';
+import { v4 as uuid } from 'uuid';
 import { RatedTextContent, Rating } from '../types/types';
 import { exampleRatedTextContent } from '../mocks/text-content';
 import { ContentRater } from './../modules/content-rater/ContentRater';
@@ -10,12 +12,41 @@ const services = {
     textScrapingService: new TextScrapingService()
 };
 
-const textContentModel = new TextContentModel();
+let textContentModel: TextContentModel;
+(async () => {
+    textContentModel = new TextContentModel()
+    await textContentModel.connect();
+})();
 
 export class ContentRatingService {
-    saveRatedTextContents = async (textContents: RatedTextContent[]) => {
-        const result = await textContentModel.saveRatedTextContents(textContents);
-        return result;
+    saveRatedTextContent = async (textContent: RatedTextContent) => {
+        let result: string;
+
+        // if this _id exists, update it
+        if (textContent._id) {
+            await textContentModel.updateRatedTextContent(textContent);
+            result = textContent._id;
+            return result;
+        } 
+
+        // if the same url exists, update it
+        const existingTextContent = await textContentModel.getByUrlAndProjectId(textContent.url, textContent.projectId);
+        if (existingTextContent) {
+            await textContentModel.updateRatedTextContentByUrlAndProjectId(textContent);
+            result = textContent._id;
+            return result;
+        }
+
+        return textContentModel.saveRatedTextContent(textContent);
+    }
+
+    saveRatedTextContents = async (textContents: RatedTextContent[]): Promise<string[]> => {
+        const ids = [];
+        for(let i=0;i<textContents.length;i++) {
+            const id = await this.saveRatedTextContent(textContents[i]);
+            ids.push(id);
+        }
+        return ids;
     }
 
     generateRatedTextContentByCrawlSite = async (url: string): Promise<RatedTextContent[]> => {
@@ -23,8 +54,11 @@ export class ContentRatingService {
         const sitemapFilepath = services.sitemappingService.getSitemapFilepath(url);
         const urls = await services.sitemappingService.getUrlsFromSitemap(sitemapFilepath);
         const textContentNotRated = await services.textScrapingService.getTextByUrls(urls);
-        const textContent: RatedTextContent[] = await this.generateRatedTextContents(textContentNotRated);
-        return textContent;
+        const textContents: RatedTextContent[] = await this.generateRatedTextContents(textContentNotRated);
+        return textContents.map((content) => {
+            content.projectId = crypto.createHash('md5').update(url).digest('hex');
+            return content;
+        });
     }
 
     generateRatedTextContent = async (text: string, title?: string, url?: string ): Promise<RatedTextContent> => {
@@ -41,7 +75,8 @@ export class ContentRatingService {
             text,
             url,
             rating,
-            createdAt: new Date()
+            projectId: crypto.createHash('md5').update(url).digest('hex'),
+            analysedAt: new Date()
         };
     };
 

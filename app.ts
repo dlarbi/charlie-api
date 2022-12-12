@@ -66,6 +66,7 @@ app.get('/', (req: express.Request, res: express.Response) => {
 			  const urls = await services.sitemappingService.getUrlsFromParentUrl(url, count);			  
 			  const textContentNotRated = await services.textScrapingService.getTextByUrls(urls);
 			  const textContent: RatedTextContent[] = await services.contentRatingService.generateRatedTextContents(textContentNotRated);
+			  await services.contentRatingService.saveRatedTextContents(textContent); 
 			  res.json({ results: textContent });
 		  } else {			  
 			  // TODO: Make this a job that kicks off later			  
