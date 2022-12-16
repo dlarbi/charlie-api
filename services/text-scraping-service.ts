@@ -1,6 +1,11 @@
 import { Readability } from '@mozilla/readability';
 import { JSDOM } from 'jsdom';
 import axios from 'axios';
+import { TextContentService } from './text-content-service';
+
+const services = {
+    textContentService: new TextContentService()
+};
 
 const cleanText = (text: string) => {
     return text.replace(/[\t\n]/g, ' '); // remove /n and /t characters
@@ -14,11 +19,12 @@ export class TextScrapingService {
                 headers: { "Accept-Encoding": "gzip,deflate,compress" } 
             });
             const doc = new JSDOM(html.data, { url });
-            let reader = new Readability(doc.window.document);
-            let article = reader.parse();
+            const reader = new Readability(doc.window.document);
+            const article = reader.parse();
             console.log(`END getTextByUrl: ${url}`);
+            const text = cleanText(article.textContent);
             return {
-                text: cleanText(article.textContent),
+                text,
                 title: article.title
             };
         } catch (e) {
@@ -30,12 +36,15 @@ export class TextScrapingService {
         }  
     }
 
-    getTextByUrls = async (urls: string[]): Promise<{ text: string, title: string, url: string }[]> => {
+    getTextContentForUrls = async (urls: string[], projectUrl: string): Promise<{ text: string, title: string, url: string }[]> => {
         const result = [];
         for (let i = 0; i < urls.length; i++) {
             const url = urls[i];
             const { text, title } = await this.getTextByUrl(url);
-            result.push({ text, title, url });
+            if (url.indexOf('.xml') === -1) {
+                await services.textContentService.saveTextContent({ text, title, url, projectUrl });
+                result.push({ text, title, url, projectUrl });
+            }
         }
         return result;
     }

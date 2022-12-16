@@ -21,20 +21,25 @@ export class SitemappingService {
             if (fs.existsSync(filepath)) {
                 console.log(`Sitemap ${filepath} completed`);
                 resolve({ filepath });
+                return;
             }
             
             const generator = SitemapGenerator(url, {
                 filepath,
                 ...options
             });
+
+            generator.on('add', (url: string) => {
+                console.log(`generateSitemap added url ${url}`);
+            });
     
             generator.on('done', (res: any) => {
-                console.log(`Sitemap ${filepath} completed`);
+                console.log(`END: generateSitemap ${filepath} completed`);
                 resolve({ filepath });
             });
     
             generator.on('error', (e: any) => {
-                reject(e);
+                console.log('ERROR: generateSitemap', e);
             });
     
             generator.start();
@@ -89,11 +94,16 @@ export class SitemappingService {
             const sitemapData = fs.readFileSync(sitemapFilepath);
             const lines = sitemapData.toString().split("\n");
             lines.forEach(line => {
-                console.log('debug getUrlsFromSitemap, line', line);
-                if (line.indexOf("<loc>") > -1) {
-                    const url = line.replace("<loc>", "").replace("</loc>", "");
-                    console.log(url, 'Pushed to sitemap');
-                    sitemapUrls.push(url);
+                try {
+                    console.log('debug getUrlsFromSitemap, line', line);
+                    if (line.indexOf("<loc>") > -1) {
+                        const url = line.replace("<loc>", "").replace("</loc>", "");
+                        console.log(url, 'Pushed to sitemap');
+                        sitemapUrls.push(url);
+                    }
+                } catch (e) {
+                    console.log('ERROR getUrlsFromSitemap. Getting url from sitemap failed - pushing empty result', e);
+                    sitemapUrls.push('');
                 }
             });
             console.log(`END getUrlsFromSitemap ${sitemapUrls}`);

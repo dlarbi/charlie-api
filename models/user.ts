@@ -1,5 +1,5 @@
-// @ts-nocheck
-import { MongoClient, Db, Collection } from 'mongodb';
+//@ts-nocheck
+import { MongoClient, Db, Collection, ObjectId } from 'mongodb';
 import { User } from './../types/types';
 
 export class UserModel {
@@ -17,7 +17,7 @@ export class UserModel {
         return user;
     }
     
-    async getById(id: string): Promise<User> {  
+    async getById(id: ObjectId): Promise<User> {  
         const user = await this.collection.findOne({ _id: id });
         return user;
     }
@@ -27,21 +27,21 @@ export class UserModel {
         return user;
     }
     
-    async saveUser(user: User): Promise<string> {
+    async saveUser(user: User): Promise<ObjectId> {
         const savedUser = await this.collection.insertOne(user);
         return savedUser.insertedId;
     }
     
-    async saveUsers(users: User[]): Promise<string[]> {
+    async saveUsers(users: User[]): Promise<ObjectId[]> {
         const savedUsers = await this.collection.insertMany(users);
-        return savedUsers.insertedIds;
+        return Object.keys(savedUsers.insertedIds).map(key => savedUsers.insertedIds[key]);
     }
     
-    async updateUser(id: string, user: User): Promise<void> {
+    async updateUser(id: ObjectId, user: User): Promise<void> {
         await this.collection.updateOne({ _id: id }, { $set: user });
     }
     
-    async deleteUser(id: string): Promise<void> {
+    async deleteUser(id: ObjectId): Promise<void> {
       await this.collection.deleteOne({ _id: id });
     }
 }

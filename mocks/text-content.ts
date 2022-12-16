@@ -1,6 +1,7 @@
-import { RatedTextContent } from "../types/types";
-export const exampleRatedTextContent: RatedTextContent = {
-    _id: '12345',
+import { ObjectId } from "mongodb";
+import { TextContent } from "../types/types";
+export const exampleTextContent: TextContent = {
+    _id: new ObjectId(),
     children: ['abc', 'def', 'ghi'],
     text: 'This is an example text content object.',
     title: 'This is a title',

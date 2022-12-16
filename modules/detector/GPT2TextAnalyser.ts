@@ -6,8 +6,7 @@ export class GPT2TextDetector {
         console.log(`BEGIN: GPT2TextDetector.analyse`);
         const encodedUrl = encodeURIComponent(text);
         const response = await axios.get(`${process.env.GPT2_DETECTOR_SERVER_URL}/?${encodedUrl}`);
-        console.log(response)
-        console.log(`END GPT2TextDetector.analyse(): ${JSON.stringify(response.data)}`);
+        console.log(`END GPT2TextDetector.analyse`);
         return response.data;
       }
 }

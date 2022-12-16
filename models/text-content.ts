@@ -1,70 +1,98 @@
 // @ts-nocheck
-import { MongoClient, Db, Collection } from 'mongodb';
-import { RatedTextContent } from './../types/types';
 
-const noProjectIdException = () => {
-  return new Error('Cannot save TextContent without a projectId');
+import mongoose from 'mongoose';
+import { MongoClient, Db, Collection } from 'mongodb';
+import { TextContent } from './../types/types';
+
+const noProjectUrlException = () => {
+  return new Error('Cannot save TextContent without a projectUrl');
 }
+
+const TextContentSchema = new mongoose.Schema({
+  _id: { type: String, required: false },
+  projectUrl: { type: String, required: true },
+  children: { type: Array, required: false },
+  title: { type: String, required: false },
+  text: { type: String, required: true },
+  rating: { type: Object, required: true },
+  url: { type: String, required: false },
+  analysedAt: { type: [Date, String], required: true },
+  createdAt: { type: [Date, String], required: false }
+});
 
 export class TextContentModel {
     db: Db;
     collection: Collection;
-
+    
     connect = async () => {
+        // TODO: Finish up mongoose
+        // await mongoose.connect(`${process.env.MONGO_DB_URL}/${process.env.MONGO_DB_NAME}`);
+
         const client = new MongoClient(process.env.MONGO_DB_URL);
         await client.connect();
         this.db = client.db(process.env.MONGO_DB_NAME);
         this.collection = this.db.collection('textContent');
     }
 
-    getAll = async (): Promise<RatedTextContent[]> => {
+    getAll = async (): Promise<TextContent[]> => {
         const textContent = await this.collection.find().toArray();
         return textContent;
     }
     
-    getById = async (id: string): Promise<RatedTextContent> => {  
+    getById = async (id: ObjectId): Promise<TextContent> => {  
         const textContent = await this.collection.findOne({ _id: id });
         return textContent;
     }
     
-    getByRatingId = async (ratingId: string): Promise<RatedTextContent> => {
+    getByRatingId = async (ratingId: string): Promise<TextContent> => {
         const textContent = await this.collection.findOne({ 'rating.id': ratingId });
         return textContent;
     }
 
-    getByUrlAndProjectId = async (url: string, projectId: string): Promise<RatedTextContent> => {
-      const textContent = await this.collection.findOne({ url, projectId });
+    getByUrlAndProjectUrl = async (url: string, projectUrl: string): Promise<TextContent> => {
+      const textContent = await this.collection.findOne({ url, projectUrl });
       return textContent;
     }
+
+    getByProjectUrl = async (projectUrl: string): Promise<TextContent[]> => {
+        const textContents = await this.collection.find({ projectUrl }).toArray();
+        return textContents;
+    }
     
-    saveRatedTextContent = async (textContent: RatedTextContent): Promise<string> => {
-        if (!textContent.projectId) {
-            throw noProjectIdException();
+    saveTextContent = async (textContent: TextContent): Promise<TextContent> => {
+        if (!textContent.projectUrl) {
+            throw noProjectUrlException();
         }
 
-        const savedRatedTextContent = this.collection.insertOne(textContent);
-        return savedRatedTextContent.insertedId;
-    }
+        await this.collection.insertOne(textContent);
+        const result = await this.getByUrlAndProjectUrl(textContent.url, textContent.projectUrl);
+        return result;
+      }
 
-    updateRatedTextContentByUrlAndProjectId = async (textContent: RatedTextContent): Promise<void> => {
-      if (!textContent.projectId) {
-        throw noProjectIdException();
+    updateTextContentByUrlAndProjectUrl = async (textContent: TextContent): Promise<TextContent> => {
+      if (!textContent.projectUrl) {
+        throw noProjectUrlException();
       }
 
       await this.collection.updateOne({ 
         url: textContent.url, 
-        projectId: textContent.projectId 
+        projectUrl: textContent.projectUrl 
       }, { $set: textContent });
+      const result = await this.getByUrlAndProjectUrl(textContent.url, textContent.projectUrl);
+      return result;
     }
     
-    updateRatedTextContent = async (textContent: RatedTextContent): Promise<void> => {
-        if (!textContent.projectId) {
-          throw noProjectIdException();
+    updateTextContent = async (textContent: TextContent): Promise<TextContent> => {
+        if (!textContent.projectUrl) {
+          throw noProjectUrlException();
         }
         await this.collection.updateOne({ _id: textContent._id }, { $set: textContent });
+        const result = await this.getByUrlAndProjectUrl(textContent.url, textContent.projectUrl);
+
+        return result;
     }
     
-    deleteRatedTextContent = async (id: string): Promise<void> => {
+    deleteTextContent = async (id: ObjectId): Promise<void> => {
       await this.collection.deleteOne({ _id: id });
     }
 }

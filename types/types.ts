@@ -1,18 +1,28 @@
-export type RatedTextContent = {
-    _id?: string;
-    projectId?: string,
+import { ObjectId } from "mongodb";
+export type TextContent = {
+    _id?: ObjectId;
+    projectUrl?: string,
     children?: Array<string>;
     title?: string;
     text: string;
-    rating: Rating;
+    rating?: Rating;
     url?: string;
-    analysedAt: Date | string;
+    analysedAt?: Date | string;
     createdAt?: Date | string;
 };
 
 export type User = {
-    _id?: string;
+    _id?: ObjectId;
     email: string;
+    password?: string;
+    roles?: string[];
+    token?: string;
+};
+
+export type Project = {
+    _id?: ObjectId;
+    url: string;
+    userId: ObjectId;
 };
 
 export interface Rating {
