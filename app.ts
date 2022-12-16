@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
+import { ObjectId } from 'mongodb';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { TextContent } from './types/types';
@@ -52,12 +53,12 @@ const services = {
 	}
   });
 
-  app.get('/project/:projectUrl', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+  app.get('/project/:projectId', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
 	try {
-		const { projectUrl } = req.params;
+		const { projectId } = req.params;
 		const user = req.user;
-		const response = await services.projectService.getProjectByUrl(projectUrl, user._id);
-		res.json({ user: response });
+		const response = await services.projectService.getProjectById(new ObjectId(projectId));
+		res.json({ project: response });
 	} catch (err) {
 		console.error(err);
 		res.status(500).send('Something went wrong');
@@ -92,18 +93,29 @@ const services = {
 		  const { url } = req.body; 
 		  const { text, title } = await services.textScrapingService.getTextByUrl(url);
 		  const textContent: TextContent = await services.contentRatingService.rateTextContent({ text, title, url });
-		  res.json({content: textContent });
+		  res.json({ results: textContent });
 	  } catch (err) {
 		  console.error(err);
 		  res.status(500).send('Something went wrong');
 	  }
   });
+
+  app.get('/text-content/:projectUrl', async (req: express.Request, res: express.Response) => {
+	try {
+		const { projectUrl } = req.params;		  
+		const textContent = await services.textContentService.getTextContentsByProjectUrl(decodeURIComponent(projectUrl));
+		res.json({ results: textContent });
+	} catch (err) {
+		console.error(err);
+		res.status(500).send('Something went wrong');
+	}
+});
   
   app.post('/rating/text', async (req: express.Request, res: express.Response) => {
 	  try {
 		  const { text } = req.body;		  
 		  const textContent: TextContent = await services.contentRatingService.rateTextContent({ text });
-		  res.json({content: textContent});
+		  res.json({ results: textContent });
 	  } catch (err) {
 		  console.error(err);
 		  res.status(500).send('Something went wrong');
@@ -141,7 +153,7 @@ const services = {
 		  // Fetch content from DB
 		  const textContent: TextContent = exampleTextContent;
 		  
-		  res.send({content: textContent});
+		  res.send({ results: textContent });
 	  } catch (err) {
 		  console.error(err);
 		  res.status(500).send('Something went wrong');
@@ -155,7 +167,7 @@ const services = {
 		  // Fetch content from DB
 		  const textContent: TextContent = exampleTextContent;
   
-		  res.send({content: textContent});
+		  res.send({ results: textContent });
 	  } catch (err) {
 		  console.error(err);
 		  res.status(500).send('Something went wrong');

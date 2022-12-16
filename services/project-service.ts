@@ -21,6 +21,10 @@ const noUserIdException = () => {
 
 export class ProjectService {
 
+    getProjectById = async (id: ObjectId ): Promise<Project> => {
+        return projectModel.getById(id);
+    }
+
     getProjectByUrl = async (url: string, userId: ObjectId): Promise<Project> => {
         return projectModel.getByUrlAndUserId(url, userId);
     }
