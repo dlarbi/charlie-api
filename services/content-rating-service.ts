@@ -44,11 +44,13 @@ export class ContentRatingService {
             rating = contentRater.getRatingError();
         }
 
-        return {
+        const result = await services.textContentService.saveTextContent({
             ...textContent,
             rating,
             analysedAt: new Date()
-        }
+        });
+
+        return result;
     };
 
     rateTextContents = async (content: TextContent[]): Promise<TextContent[]> => {
@@ -56,8 +58,6 @@ export class ContentRatingService {
         for (let i = 0; i < content.length; i++) {
             const textContent = content[i];
             const ratedTextContent = await this.rateTextContent(textContent);
-            await services.textContentService.saveTextContent(ratedTextContent);
-
             result.push(ratedTextContent);
         }
         return result;

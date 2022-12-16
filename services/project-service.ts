@@ -3,10 +3,12 @@ import { Project, Rating } from '../types/types';
 import { SitemappingService } from './sitemapping-service';
 import { TextScrapingService } from './text-scraping-service';
 import { ProjectModel } from '../models/project';
+import { TextContentService } from './text-content-service';
 
 const services = {
     sitemappingService: new SitemappingService(),
-    textScrapingService: new TextScrapingService()
+    textScrapingService: new TextScrapingService(),
+    textContentService: new TextContentService()
 };
 
 let projectModel: ProjectModel;
@@ -45,5 +47,14 @@ export class ProjectService {
         } 
 
         return projectModel.saveProject(project);
+    }
+
+    deleteProject = async (projectId: ObjectId): Promise<void> => {
+        const project = await this.getProjectById(projectId);
+        const textContents = await services.textContentService.getTextContentsByProjectUrl(project.url);
+        for(let i=0;i<textContents.length;i++) {
+            await services.textContentService.deleteTextContent(textContents[i]?._id);
+        }
+        await projectModel.deleteProject(projectId);
     }
 }

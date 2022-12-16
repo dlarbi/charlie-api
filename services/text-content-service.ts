@@ -5,6 +5,7 @@ import { exampleTextContent } from '../mocks/text-content';
 import { ContentRater } from './../modules/content-rater/ContentRater';
 import { SitemappingService } from './sitemapping-service';
 import { TextContentModel } from './../models/text-content';
+import { ObjectId } from 'mongodb';
 
 const services = {
     sitemappingService: new SitemappingService(),
@@ -67,4 +68,7 @@ export class TextContentService {
         return results;
     }
 
+    deleteTextContent = async (id: ObjectId): Promise<void> => {
+        await textContentModel.deleteTextContent(id);
+    }
 }

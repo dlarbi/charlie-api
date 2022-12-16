@@ -25,6 +25,13 @@ export type Project = {
     userId: ObjectId;
 };
 
+export type ProjectMetrics = {
+    total: number;
+    issues: number;
+    score: number;
+    analysedAt: Date | string;
+}
+
 export interface Rating {
     id: string;
     contentId?: string;

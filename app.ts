@@ -14,12 +14,15 @@ import { SitemappingService } from './services/sitemapping-service';
 import { TextContentService } from './services/text-content-service';
 import { UserService } from './services/user-service';
 import { ProjectService } from './services/project-service';
+import { MetricsService } from './services/metrics-service';
+
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(function(req: express.Request, res: express.Response, next: any) {
 	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, authorization");
 	next();
 });
@@ -30,7 +33,8 @@ const services = {
 	sitemappingService: new SitemappingService(),
 	textContentService: new TextContentService(),
 	userService: new UserService(),
-	projectService: new ProjectService()
+	projectService: new ProjectService(),
+	metricsService: new MetricsService()
 };
 
   app.get('/', (req: express.Request, res: express.Response) => {
@@ -57,8 +61,30 @@ const services = {
 	try {
 		const { projectId } = req.params;
 		const user = req.user;
-		const response = await services.projectService.getProjectById(new ObjectId(projectId));
-		res.json({ project: response });
+		const project = await services.projectService.getProjectById(new ObjectId(projectId));
+		res.json({ project });
+	} catch (err) {
+		console.error(err);
+		res.status(500).send('Something went wrong');
+	}
+  });
+
+  app.delete('/project/:projectId', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const { projectId } = req.params;
+		await services.projectService.deleteProject(new ObjectId(projectId));
+		res.status(204).send(`Deleted ${projectId}`);
+	} catch (err) {
+		console.error(err);
+		res.status(500).send('Something went wrong');
+	}
+  });
+
+  app.get('/metrics/:projectId', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const { projectId } = req.params;
+		const metrics = await services.metricsService.getProjectMetrics(new ObjectId(projectId));
+		res.json({ metrics });
 	} catch (err) {
 		console.error(err);
 		res.status(500).send('Something went wrong');
@@ -86,18 +112,6 @@ const services = {
 		console.error(err);
 		res.status(401).send(`Login error ${err}`);
 	}
-  });
-  
-  app.post('/rating/url', async (req: express.Request, res: express.Response) => {
-	  try {
-		  const { url } = req.body; 
-		  const { text, title } = await services.textScrapingService.getTextByUrl(url);
-		  const textContent: TextContent = await services.contentRatingService.rateTextContent({ text, title, url });
-		  res.json({ results: textContent });
-	  } catch (err) {
-		  console.error(err);
-		  res.status(500).send('Something went wrong');
-	  }
   });
 
   app.get('/text-content/:projectUrl', async (req: express.Request, res: express.Response) => {
@@ -146,6 +160,18 @@ const services = {
 	  }
   });
   
+  app.post('/rating/url', async (req: express.Request, res: express.Response) => {
+	try {
+		const { url } = req.body; 
+		const { text, title } = await services.textScrapingService.getTextByUrl(url);
+		const textContent: TextContent = await services.contentRatingService.rateTextContent({ text, title, url });
+		res.json({ results: textContent });
+	} catch (err) {
+		console.error(err);
+		res.status(500).send('Something went wrong');
+	}
+  });
+
   app.get('/rating/text/:contentId', (req: express.Request, res: express.Response) => {
 	  try {
 		  const { contentId } = req.params;
