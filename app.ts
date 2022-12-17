@@ -15,7 +15,7 @@ import { TextContentService } from './services/text-content-service';
 import { UserService } from './services/user-service';
 import { ProjectService } from './services/project-service';
 import { MetricsService } from './services/metrics-service';
-
+import { getHostname } from './utils/utils';
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -163,8 +163,10 @@ const services = {
   app.post('/rating/url', async (req: express.Request, res: express.Response) => {
 	try {
 		const { url } = req.body; 
+		const projectUrl = getHostname(url);
 		const { text, title } = await services.textScrapingService.getTextByUrl(url);
-		const textContent: TextContent = await services.contentRatingService.rateTextContent({ text, title, url });
+
+		const textContent: TextContent = await services.contentRatingService.rateTextContent({ text, title, url, projectUrl });
 		res.json({ results: textContent });
 	} catch (err) {
 		console.error(err);
