@@ -21,8 +21,10 @@ export class ProjectModel {
         // TODO: Finish up mongoose
         // await mongoose.connect(`${process.env.MONGO_DB_URL}/${process.env.MONGO_DB_NAME}`);
 
-        const client = new MongoClient(process.env.MONGO_DB_URL);
-        await client.connect();
+         const client = new MongoClient();
+        await client.connect(process.env.MONGO_DB_URL, {
+          tlsCAFile: 'rds-combined-ca-bundle.pem'
+        });
         this.db = client.db(process.env.MONGO_DB_NAME);
         this.collection = this.db.collection('project');
     }
