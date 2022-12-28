@@ -19,6 +19,10 @@ let textContentModel: TextContentModel;
 
 export class TextContentService {
 
+    getByContentId = async (contentId: ObjectId): Promise<TextContent> => {
+        return textContentModel.getById(contentId);
+    }
+
     getTextContentsByProjectUrl = async (projectUrl: string): Promise<TextContent[]> => {
         return textContentModel.getByProjectUrl(projectUrl);
     }

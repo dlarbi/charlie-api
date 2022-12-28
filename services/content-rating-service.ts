@@ -35,6 +35,24 @@ export class ContentRatingService {
         return ratedTextContents;
     }
 
+    getRatingForTextContent = async (textContent: TextContent): Promise<TextContent> => {
+        const contentRater = new ContentRater();
+        let rating: Rating;
+        try {
+            rating = await contentRater.rateText(textContent.text, ['gpt2-detector']);
+        } catch (e) {
+            rating = contentRater.getRatingError();
+        }
+
+        const result = {
+            ...textContent,
+            rating,
+            analysedAt: new Date()
+        };
+
+        return result;
+    };
+
     rateTextContent = async (textContent: TextContent): Promise<TextContent> => {
         const contentRater = new ContentRater();
         let rating: Rating;

@@ -18,3 +18,28 @@ export function getHostname(url: string): string {
 
     return hostname;
 }
+
+export const asyncSpawn = async (command: string, args: string[], options: { cwd: string }) => {
+    const { spawn } = require('child_process');
+    const child = spawn(command, args, options);
+
+    let data = "";
+    for await (const chunk of child.stdout) {
+        console.log('stdout chunk: '+chunk);
+        data += chunk;
+    }
+    let error = "";
+    for await (const chunk of child.stderr) {
+        console.error('stderr chunk: '+chunk);
+        error += chunk;
+    }
+    const exitCode = await new Promise( (resolve, reject) => {
+        child.on('close', resolve);
+    });
+
+    if( exitCode) {
+        console.log('exitCode', exitCode, error, data);
+        throw new Error( `subprocess error exit ${exitCode}, ${error}`);
+    }
+    return data;
+}

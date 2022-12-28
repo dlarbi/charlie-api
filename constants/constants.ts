@@ -1,0 +1,1 @@
+export const UNDEFINED_PROJECT_URL = 'content-audit';
