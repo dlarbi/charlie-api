@@ -9,6 +9,7 @@ export type TextContent = {
     url?: string;
     analysedAt?: Date | string;
     createdAt?: Date | string;
+    isIgnored?: boolean;
 };
 
 export type User = {

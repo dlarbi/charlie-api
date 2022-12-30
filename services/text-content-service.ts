@@ -62,6 +62,12 @@ export class TextContentService {
         return textContentModel.saveTextContent(textContent);
     }
 
+    ignoreTextContent = async (contentId: ObjectId | string, ignore: boolean): Promise<TextContent> => {
+        const content = await textContentModel.getById(new ObjectId(contentId));
+        content.isIgnored = ignore;
+        return textContentModel.updateTextContent(content);
+    }
+
     saveTextContents = async (textContents: TextContent[], projectUrl: string): Promise<TextContent[]> => {
         const results = [];
         for(let i=0;i<textContents.length;i++) {

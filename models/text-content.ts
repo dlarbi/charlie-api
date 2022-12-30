@@ -17,7 +17,8 @@ const TextContentSchema = new mongoose.Schema({
   rating: { type: Object, required: true },
   url: { type: String, required: false },
   analysedAt: { type: [Date, String], required: true },
-  createdAt: { type: [Date, String], required: false }
+  createdAt: { type: [Date, String], required: false },
+  isIgnored: { type: Boolean, required: false }
 });
 
 export class TextContentModel {

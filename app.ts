@@ -103,6 +103,32 @@ const services = {
 	}
   });
 
+  app.post('/content', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const { content } = req.body;
+		const user = req.user;
+
+		const result = await services.textContentService.saveTextContent(content);
+		res.json({ result });
+	} catch (err) {
+		console.error(err);
+		res.status(500).send('Something went wrong');
+	}
+  });
+
+  app.post('/content/:contentId/ignore', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const { contentId } = req.params;
+		const user = req.user;
+
+		const result = await services.textContentService.ignoreTextContent(contentId, true);
+		res.json({ result });
+	} catch (err) {
+		console.error(err);
+		res.status(500).send('Something went wrong');
+	}
+  });
+
   app.post('/user', async (req: express.Request, res: express.Response) => {
 	try {
 		const { email, password } = req.body;
@@ -120,6 +146,16 @@ const services = {
 		const { email, password } = req.body;
 		const token = await services.userService.auth(email, password);
 		res.json({ token });
+	} catch (err) {
+		console.error(err);
+		res.status(401).send(`Login error ${err}`);
+	}
+  });
+
+  app.post('/auth/token', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const user = req.user;
+		res.json({ user });
 	} catch (err) {
 		console.error(err);
 		res.status(401).send(`Login error ${err}`);
