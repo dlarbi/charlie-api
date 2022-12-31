@@ -20,7 +20,7 @@ export class GmailSend {
   }
 
   public sendEmail() {
-    this.transporter.sendMail(this.mailOptions, (error: nodemailer.error, info: nodemailer.info) => {
+    this.transporter.sendMail(this.mailOptions, (error: any, info: any,) => {
       if (error) {
         console.log(error);
       } else {
