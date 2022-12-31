@@ -44,7 +44,7 @@ export class UserService {
             to: email,
             from: 'dean@willieai.com',
             subject: 'Reset Password | WillieAi',
-            text: `Hello ${email}, you have requested a reset password link.  Please ignore this email and contact customer service if this is in error. Your link: ${link}`
+            text: `Hello ${email}, you have requested a reset password link.  Please ignore this email and contact customer service if this is in error.\n\n Your link: ${link}?email=${email}`
         });
         gmailSender.sendEmail();
     }
