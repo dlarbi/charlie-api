@@ -55,8 +55,8 @@ export class UserService {
 
         const gmailSender = new GmailSend();
         gmailSender.setupOptions({
-            to: email,
-            from: 'dean.m.larbi@gmail.com',
+            to: 'dean.m.larbi@gmail.com',
+            from: 'hello@willieai.com',
             subject: 'Welcome to WillieAi!',
             text: 'You have successfully created your account'
         });
