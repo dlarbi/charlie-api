@@ -10,7 +10,7 @@ export class GmailSend {
       service: "gmail",
       auth: {
         user: 'dean@willieai.com',
-        pass: 'Postal9curse$swaN'
+        pass: 'slvtwucuaiojqese'
       }
     });
   }
