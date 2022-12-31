@@ -15,16 +15,61 @@ export class UserService {
     auth = async (email: string, password: string) => {
         console.log(`BEGIN UserService.auth`, email);
         const hash = await Password.hashPassword(password);
-        const isValid = await Password.comparePassword(hash, password);
+
+        const user = await this.findUserByEmail(email);
+        const isValid = await Password.comparePassword(hash, user.password);
 
         if (!isValid) {
             console.log(`ERROR UserService.auth Invalid password`,  email);
             throw new Error('Invalid password');
         }
-        const user = await this.findUserByEmail(email);
         const token = jwt.sign(user, process.env.PUBKEY);
         console.log(`END UserService.auth`, email);
         return token;
+    }
+
+    requestResetPassword = async (email: string) => {
+        const date = Date.now() + (24 * 60 * 60 * 1000);
+        const expiryToken = { expiry: date };
+        const token = jwt.sign(expiryToken, process.env.PUBKEY);
+        const link = `https://app.willieai.com/reset-password/${token}`;
+        const user = await this.findUserByEmail(email);
+
+        user.passwordResetToken = token;
+        user.passwordResetExpiry = date;
+        await userModel.updateUser(user._id, user);
+
+        const gmailSender = new GmailSend();
+        gmailSender.setupOptions({
+            to: email,
+            from: 'dean@willieai.com',
+            subject: 'Reset Password | WillieAi',
+            text: `Hello ${email}, you have requested a reset password link.  Please ignore this email and contact customer service if this is in error. Your link: ${link}`
+        });
+        gmailSender.sendEmail();
+    }
+
+    resetPassword = async (token: string, email: string, password: string, newPassword: string): Promise<void> => {
+        const user = await this.findUserByEmail(email);
+
+        // TODO: Use jwt.verify() to get the expiration out of the token, and remove the passwordResetExpiry property
+        if(user.passwordResetToken !== token || user.passwordResetExpiry > Date.now()) {
+            console.log(`ERROR UserService.resetPassword Token invalid or expired`,  email);
+            throw new Error('Invalid token');
+        }
+        
+        const hash = await Password.hashPassword(password);
+        const isValid = await Password.comparePassword(hash, user.password);
+        if (!isValid) {
+            console.log(`ERROR UserService.resetPassword Invalid password`,  email);
+            throw new Error('Invalid password');
+        }
+
+        const newHash = await Password.hashPassword(newPassword);
+        user.password = newHash;
+        user.passwordResetToken = undefined;
+        const response = await userModel.updateUser(user._id, user);
+        return response;
     }
 
     findUserById = async (id: ObjectId): Promise<User> => {

@@ -141,6 +141,28 @@ const services = {
 	}
   });
 
+  app.post('/request-reset-password', async (req: express.Request, res: express.Response) => {
+	try {
+		const { email } = req.body;
+		const response = await services.userService.requestResetPassword(email);
+		res.json({ message: `Request reset password sent to ${email}` });
+	} catch (err) {
+		console.error(err);
+		res.status(500).send('Something went wrong');
+	}
+  });
+
+  app.post('/reset-password', async (req: express.Request, res: express.Response) => {
+	try {
+		const { token, email, password, newPassword } = req.body;
+		const response = await services.userService.resetPassword(token, email, password, newPassword);
+		res.json({ response });
+	} catch (err) {
+		console.error(err);
+		res.status(500).send('Something went wrong');
+	}
+  });
+
   app.post('/user/login', async (req: express.Request, res: express.Response) => {
 	try {
 		const { email, password } = req.body;
@@ -213,7 +235,6 @@ app.post('/rating/url', async (req: express.Request, res: express.Response) => {
 	try {
 		const { url } = req.body; 
 		const { text, title } = await services.textScrapingService.getTextByUrl(url);
-
 		const textContent: TextContent = await services.contentRatingService.rateTextContent({ text, title, url, projectUrl: UNDEFINED_PROJECT_URL });
 		res.json({ results: textContent });
 	} catch (err) {

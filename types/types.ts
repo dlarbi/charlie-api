@@ -18,6 +18,8 @@ export type User = {
     password?: string;
     roles?: string[];
     token?: string;
+    passwordResetToken?: string;
+    passwordResetExpiry?: number;
 };
 
 export type Project = {
