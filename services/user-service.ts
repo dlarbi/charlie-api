@@ -3,6 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import { UserModel } from "../models/user";
 import { User } from './../types/types';
 import { Password } from "../modules/password/Password";
+import { GmailSend, MailOptions } from '../modules/gmail-send/GmailSend';
 
 let userModel: UserModel;
 (async () => {
@@ -51,6 +52,15 @@ export class UserService {
         const token = jwt.sign(user, process.env.PUBKEY);
 
         const response = await this.findUserByEmail(email);
+
+        const gmailSender = new GmailSend();
+        gmailSender.setupOptions({
+            to: email,
+            from: 'dean.m.larbi@gmail.com',
+            subject: 'Welcome to WillieAi!',
+            text: 'You have successfully created your account'
+        });
+        gmailSender.sendEmail()
         console.log(`END UserService.createUser`, email);
         return { ...response, token };
     }
