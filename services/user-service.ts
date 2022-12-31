@@ -55,12 +55,12 @@ export class UserService {
 
         const gmailSender = new GmailSend();
         gmailSender.setupOptions({
-            to: 'dean.m.larbi@gmail.com',
-            from: 'hello@willieai.com',
+            to: email,
+            from: 'dean@willieai.com',
             subject: 'Welcome to WillieAi!',
-            text: 'You have successfully created your account'
+            text: `Hello ${email}, You have successfully created your account.  Login at willieai.com to start asking Willie to analyse your content!`
         });
-        gmailSender.sendEmail()
+        gmailSender.sendEmail();
         console.log(`END UserService.createUser`, email);
         return { ...response, token };
     }

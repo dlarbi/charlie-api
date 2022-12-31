@@ -9,8 +9,8 @@ export class GmailSend {
     this.transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: 'dean@willieai.com',
-        pass: 'slvtwucuaiojqese'
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS
       }
     });
   }
