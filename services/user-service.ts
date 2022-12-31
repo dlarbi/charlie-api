@@ -49,7 +49,7 @@ export class UserService {
         gmailSender.sendEmail();
     }
 
-    resetPassword = async (token: string, email: string, password: string, newPassword: string): Promise<void> => {
+    resetPassword = async (token: string, email: string, password: string, password2: string): Promise<void> => {
         console.log(`BEGIN resetPassword`, token, email);
         const user = await this.findUserByEmail(email);
 
@@ -59,15 +59,9 @@ export class UserService {
             throw new Error('Invalid token');
         }
         
-        const hash = await Password.hashPassword(password);
-        const isValid = await Password.comparePassword(hash, user.password);
-        if (!isValid) {
-            console.log(`ERROR UserService.resetPassword Invalid password`,  email);
-            throw new Error('Invalid password');
-        }
-
-        const newHash = await Password.hashPassword(newPassword);
+        const newHash = await Password.hashPassword(password2);
         user.password = newHash;
+        user.passwordResetToken = undefined;
         user.passwordResetToken = undefined;
         const response = await userModel.updateUser(user._id, user);
         return response;

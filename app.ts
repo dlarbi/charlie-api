@@ -154,8 +154,8 @@ const services = {
 
   app.post('/reset-password', async (req: express.Request, res: express.Response) => {
 	try {
-		const { token, email, password, newPassword } = req.body;
-		const response = await services.userService.resetPassword(token, email, password, newPassword);
+		const { token, email, password, password2 } = req.body;
+		const response = await services.userService.resetPassword(token, email, password, password2);
 		res.json({ response });
 	} catch (err) {
 		console.error(err);
