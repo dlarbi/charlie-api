@@ -52,6 +52,11 @@ export class UserService {
     resetPassword = async (token: string, email: string, password: string, password2: string): Promise<void> => {
         console.log(`BEGIN resetPassword`, token, email);
         const user = await this.findUserByEmail(email);
+        console.log(`resetPassword for ${JSON.stringify(user)}`);
+
+        if (password !== password2) {
+            throw new Error('Passwords do not match');
+        }
 
         // TODO: Use jwt.verify() to get the expiration out of the token, and remove the passwordResetExpiry property
         if(user.passwordResetToken !== token || user.passwordResetExpiry < Date.now()) {
