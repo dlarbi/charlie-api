@@ -17,7 +17,7 @@ export class UserService {
         const hash = await Password.hashPassword(password);
 
         const user = await this.findUserByEmail(email);
-        const isValid = await Password.comparePassword(hash, user.password);
+        const isValid = await Password.comparePassword(user.password, password);
 
         if (!isValid) {
             console.log(`ERROR UserService.auth Invalid password`,  email);
