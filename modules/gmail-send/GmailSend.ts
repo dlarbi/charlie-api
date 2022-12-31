@@ -1,9 +1,8 @@
-import nodemailer from "nodemailer";
-
+const nodemailer = require('nodemailer');
 export type MailOptions = { to: string, from: string, subject: string, text: string };
 
 export class GmailSend {
-  private transporter: nodemailer.transporter;
+  private transporter: any;
   private mailOptions: MailOptions;
 
   constructor() {
