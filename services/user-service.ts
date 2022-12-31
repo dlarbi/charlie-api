@@ -62,7 +62,7 @@ export class UserService {
         const newHash = await Password.hashPassword(password2);
         user.password = newHash;
         user.passwordResetToken = undefined;
-        user.passwordResetToken = undefined;
+        user.passwordResetExpiry = undefined;
         const response = await userModel.updateUser(user._id, user);
         return response;
     }
