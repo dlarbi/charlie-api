@@ -38,6 +38,7 @@ export class UserModel {
     }
     
     async updateUser(id: ObjectId, user: User): Promise<User> {
+        delete user._id;
         await this.collection.updateOne({ _id: id }, { $set: user });
         return this.collection.findOne({ _id: id });
     }

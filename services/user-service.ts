@@ -117,10 +117,10 @@ export class UserService {
         delete user.password;
         let response: User;
         if (user._id) {
-            response = await userModel.updateUser(user._id, { ...user });
+            response = await userModel.updateUser(new ObjectId(user._id), { ...user });
         } else {
             const existing: User = await userModel.getByEmail(user.email);
-            response = await userModel.updateUser(existing._id, { ...existing, ...user }); 
+            response = await userModel.updateUser(new ObjectId(existing._id), { ...existing, ...user }); 
         }
         console.log(`END UserService.updateUser`, user);
         return response;
