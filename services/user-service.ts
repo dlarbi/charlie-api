@@ -23,6 +23,8 @@ export class UserService {
             console.log(`ERROR UserService.auth Invalid password`,  email);
             throw new Error('Invalid password');
         }
+        delete user.password;
+        delete user.passwordResetToken;
         const token = jwt.sign(user, process.env.PUBKEY);
         console.log(`END UserService.auth`, email);
         return token;
@@ -49,7 +51,7 @@ export class UserService {
         gmailSender.sendEmail();
     }
 
-    resetPassword = async (token: string, email: string, password: string, password2: string): Promise<void> => {
+    resetPassword = async (token: string, email: string, password: string, password2: string): Promise<User> => {
         console.log(`BEGIN resetPassword`, token, email);
         const user = await this.findUserByEmail(email);
         console.log(`resetPassword for ${JSON.stringify(user)}`);
@@ -92,7 +94,7 @@ export class UserService {
         if (existing) {
             throw new Error(`${email} is an existing user.  New user not created.`);
         }
-        const user = { email, password, roles: ['user'] };
+        const user = { email, password, roles: ['user'], accountType: 'free' };
         await userModel.saveUser(user);
         const token = jwt.sign(user, process.env.PUBKEY);
 
@@ -110,16 +112,17 @@ export class UserService {
         return { ...response, token };
     }
 
-    updateUser = async (id?: ObjectId, email?: string): Promise<void> => {
-        console.log(`BEGIN UserService.updateUser`, email);
-        let response: void;
-        if (id) {
-            response = await userModel.updateUser(id, { email });
+    updateUser = async (user: User): Promise<User> => {
+        console.log(`BEGIN UserService.updateUser`, user);
+        delete user.password;
+        let response: User;
+        if (user._id) {
+            response = await userModel.updateUser(user._id, { ...user });
         } else {
-            const user: User = await userModel.getByEmail(email);
-            response = await userModel.updateUser(user._id, { email }); 
+            const existing: User = await userModel.getByEmail(user.email);
+            response = await userModel.updateUser(existing._id, { ...existing, ...user }); 
         }
-        console.log(`END UserService.updateUser`, email);
+        console.log(`END UserService.updateUser`, user);
         return response;
     }
 

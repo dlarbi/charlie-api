@@ -174,6 +174,22 @@ const services = {
 	}
   });
 
+  app.put('/user', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	const authUser = req.user;
+	const { user } = req.body;
+	if (authUser.email !== user.email) {
+		res.status(401).send('Forbidden');
+		return;
+	} 
+	try {
+		const result = await services.userService.updateUser(user);
+		res.json({ user: result });
+	} catch (err) {
+		console.error(err);
+		res.status(401).send(`Login error ${err}`);
+	}
+  });
+
   app.post('/auth/token', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
 	try {
 		const user = req.user;

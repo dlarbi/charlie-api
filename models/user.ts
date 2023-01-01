@@ -37,8 +37,9 @@ export class UserModel {
         return Object.keys(savedUsers.insertedIds).map(key => savedUsers.insertedIds[key]);
     }
     
-    async updateUser(id: ObjectId, user: User): Promise<void> {
+    async updateUser(id: ObjectId, user: User): Promise<User> {
         await this.collection.updateOne({ _id: id }, { $set: user });
+        return this.collection.findOne({ _id: id });
     }
     
     async deleteUser(id: ObjectId): Promise<void> {

@@ -15,12 +15,16 @@ export type TextContent = {
 export type User = {
     _id?: ObjectId;
     email: string;
+    companyName?: string;
     password?: string;
     roles?: string[];
     token?: string;
     passwordResetToken?: string;
     passwordResetExpiry?: number;
+    accountType?: string | AccountType;
 };
+
+export type AccountType = "free" | "professional" | "enterprise";
 
 export type Project = {
     _id?: ObjectId;
