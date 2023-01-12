@@ -2,13 +2,14 @@ import { ObjectId } from 'mongodb';
 import { TextContent, ProjectMetrics } from '../types/types';
 import { ProjectService } from './project-service';
 import { TextContentService } from './text-content-service';
-
 const services = {
     textContentService: new TextContentService(),
     projectService: new ProjectService(),
 }
 
 const NO_RATING_ERROR_STATUS = -1;
+const NEGATIVE_THRESHOLD = .8;
+
 export class MetricsService {
     getProjectMetrics = async (projectId: ObjectId): Promise<ProjectMetrics> => {
         const project = await services.projectService.getProjectById(projectId);
@@ -25,7 +26,7 @@ export class MetricsService {
     textContentsToOverallScore = (textContents: TextContent[]): number => {
         let counted = 0;
         return Number((textContents.reduce((score, textContent) => {
-            if (textContent.rating?.overall === NO_RATING_ERROR_STATUS) {
+            if (textContent.rating?.overall === NO_RATING_ERROR_STATUS || textContent.isIgnored == true) {
                 return score;
             }
             score += textContent.rating?.overall;
@@ -36,7 +37,7 @@ export class MetricsService {
 
     textContentsToIssueCount = (textContents: TextContent[]): number => {
         return textContents.reduce((count, textContent) => {
-            if (textContent.rating?.overall < .9) {
+            if (textContent.rating?.overall < NEGATIVE_THRESHOLD) {
                 count += 1;
             }
             return count;
