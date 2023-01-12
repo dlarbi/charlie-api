@@ -355,10 +355,10 @@ app.post('/payment/subscribe', auth, async (req: IGetUserAuthInfoRequest, res: e
 		  user: updated,
 		});
 	  } catch (err) {
-		console.log(err);
+		console.log(String(err));
 		res.status(400).json({
 		  message: "There was an error creating the subscriber.",
-		  error: err,
+		  error: String(err),
 		});
 	  }
 });
