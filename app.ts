@@ -282,6 +282,19 @@ app.post('/rating/website?rerate=true', auth, async (req: IGetUserAuthInfoReques
 	}
 });
 
+app.post('/rating/refresh-content', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const { url, projectUrl } = req.body; 
+		const user = req.user;
+		const { text, title } = await services.textScrapingService.getTextByUrl(url);
+		const textContent: TextContent = await services.contentRatingService.rateTextContent({ text, title, userId: user._id, url, projectUrl, isIgnored: false });
+		res.json({ results: textContent });
+	} catch (err) {
+		console.error(err);
+		res.status(500).send('Something went wrong');
+	}
+})
+
 app.post('/rating/url', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
 	try {
 		const { url } = req.body; 

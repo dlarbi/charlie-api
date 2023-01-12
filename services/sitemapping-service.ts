@@ -70,7 +70,6 @@ export class SitemappingService {
                     url.indexOf('site') > -1 ||
                     url.indexOf('xml') > -1;
                 if (!skipUrl) {
-                    console.log(url);
                     urls.push(url);
                 }
             });
