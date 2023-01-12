@@ -32,7 +32,7 @@ export class MetricsService {
             score += textContent.rating?.overall;
             counted += 1;
             return score;
-        }, 0)/counted).toFixed(1));
+        }, 0)/counted).toFixed(2));
     }
 
     textContentsToIssueCount = (textContents: TextContent[]): number => {
