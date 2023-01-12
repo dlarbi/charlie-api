@@ -12,3 +12,4 @@ export const TestStripePriceIds = {
     Professional: 'price_1MPD1gHqswr697OJilH2mncZ',
     Enterprise: 'price_1MPD1wHqswr697OJ4qh5Cm1L'
 }
+export const NoAccountTypeError = 'no-account-type-error';
