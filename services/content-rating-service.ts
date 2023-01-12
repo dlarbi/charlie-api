@@ -25,9 +25,12 @@ export class ContentRatingService {
         await services.sitemappingService.generateSitemap(projectUrl);
         const sitemapFilepath = services.sitemappingService.getSitemapFilepath(projectUrl);
         const urls = await services.sitemappingService.getUrlsFromSitemap(sitemapFilepath);
+        const trimmedUrls = urls.map((url) => {
+            return url.trim();
+        });
 
         // Get HTML contents from pages, and save
-        const textContentNotRated = await services.textScrapingService.getTextContentForUrls(urls, projectUrl);
+        const textContentNotRated = await services.textScrapingService.getTextContentForUrls(trimmedUrls, projectUrl);
 
         // Generate ratings for text contents, and resave
         const ratedTextContents: TextContent[] = await this.rateTextContents(textContentNotRated);
