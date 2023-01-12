@@ -76,6 +76,7 @@ export class TextContentService {
     ignoreTextContent = async (contentId: ObjectId | string, ignore: boolean): Promise<TextContent> => {
         const content = await textContentModel.getById(new ObjectId(contentId));
         content.isIgnored = ignore;
+        textContentModel.updateTextContent(content);
         return content;
     }
 
