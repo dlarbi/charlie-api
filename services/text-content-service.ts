@@ -27,6 +27,17 @@ export class TextContentService {
         return textContentModel.getByProjectUrl(projectUrl);
     }
 
+    getTextContentsByProjectUrlAndUserId = async (userId: ObjectId, projectUrl: string): Promise<TextContent[]> => {
+        return textContentModel.getByProjectUrlAndUserId(userId, projectUrl);
+    }
+
+    deleteTextContentsByProjectUrl = async (projectUrl: string): Promise<void> => {
+        const textContents = await textContentModel.getByProjectUrl(projectUrl);
+        for (let i=0;i<textContents.length; i++) {
+            await this.deleteTextContent(textContents[i]._id);
+        }
+    }
+
     getTextContentsIfRated = async (projectUrl: string) => {
         const existingTextContent = await this.getTextContentsByProjectUrl(projectUrl);
         const ratedCountTreshold = Math.round(0.9 * existingTextContent.length)

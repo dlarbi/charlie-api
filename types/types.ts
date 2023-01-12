@@ -2,6 +2,7 @@ import { ObjectId } from "mongodb";
 export type TextContent = {
     _id?: ObjectId;
     projectUrl?: string,
+    userId?: ObjectId | string,
     children?: Array<string>;
     title?: string;
     text: string;

@@ -59,6 +59,11 @@ export class TextContentModel {
         const textContents = await this.collection.find({ projectUrl }).toArray();
         return textContents;
     }
+
+    getByProjectUrlAndUserId = async (userId: ObjectId, projectUrl: string): Promise<TextContent[]> => {
+      const textContents = await this.collection.find({ userId, projectUrl }).toArray();
+      return textContents;
+  }
     
     saveTextContent = async (textContent: TextContent): Promise<TextContent> => {
         if (!textContent.projectUrl) {

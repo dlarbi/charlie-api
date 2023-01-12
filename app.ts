@@ -213,10 +213,18 @@ const services = {
 	}
   });
 
-  app.get('/text-content/:projectUrl', async (req: express.Request, res: express.Response) => {
+  app.get('/text-content/:projectUrl', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
 	try {
-		const { projectUrl } = req.params;		  
-		const textContent = await services.textContentService.getTextContentsByProjectUrl(decodeURIComponent(projectUrl));
+		const { projectUrl } = req.params;		
+		const userId = req.user._id;
+		let textContent;
+		if (projectUrl === UNDEFINED_PROJECT_URL) {
+			textContent = await services.textContentService.getTextContentsByProjectUrlAndUserId(userId, decodeURIComponent(projectUrl));
+
+		} else {
+			textContent = await services.textContentService.getTextContentsByProjectUrl(decodeURIComponent(projectUrl));
+
+		} 
 		res.json({ results: textContent });
 	} catch (err) {
 		console.error(err);
@@ -243,13 +251,13 @@ app.post('/rating/website', auth, async (req: IGetUserAuthInfoRequest, res: expr
 
 	// @TODO Move this functionality of getting existing.  The logic should still exist somewhere, but 
 	// this specific POST /rating/website route should always re-rate the URLS for a project
-	// const existingTextContent = await services.textContentService.getTextContentsIfRated(url);
-	// if (existingTextContent.length) {
-	// 	res.json({
-	// 		results: existingTextContent
-	// 	})
-	// 	return;
-	// }
+	const existingTextContent = await services.textContentService.getTextContentsIfRated(url);
+	if (existingTextContent.length) {
+		res.json({
+			results: existingTextContent
+		})
+		return;
+	}
 
 	// TODO: Make this a job that kicks off later	
 	const textContent: TextContent[] = await services.contentRatingService.rateTextContentByCrawlSite(url);
@@ -260,11 +268,26 @@ app.post('/rating/website', auth, async (req: IGetUserAuthInfoRequest, res: expr
 	}
 });
 
-app.post('/rating/url', async (req: express.Request, res: express.Response) => {
+app.post('/rating/website?rerate=true', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+	const { url, count } = req.body;
+	const user = req.user;
+	await services.textContentService.deleteTextContentsByProjectUrl(url);
+	// TODO: Make this a job that kicks off later	
+	const textContent: TextContent[] = await services.contentRatingService.rateTextContentByCrawlSite(url);
+	res.json({ results: textContent });
+	} catch (err) {
+		console.error('ERROR: POST /rating/website', err);
+		res.status(500).send('Something went wrong');
+	}
+});
+
+app.post('/rating/url', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
 	try {
 		const { url } = req.body; 
+		const user = req.user;
 		const { text, title } = await services.textScrapingService.getTextByUrl(url);
-		const textContent: TextContent = await services.contentRatingService.rateTextContent({ text, title, url, projectUrl: UNDEFINED_PROJECT_URL });
+		const textContent: TextContent = await services.contentRatingService.rateTextContent({ text, title, userId: user._id, url, projectUrl: UNDEFINED_PROJECT_URL });
 		res.json({ results: textContent });
 	} catch (err) {
 		console.error(err);
