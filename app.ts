@@ -245,9 +245,9 @@ app.post('/rating/text', async (req: express.Request, res: express.Response) => 
   
 app.post('/rating/website', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
 	try {
-	const { url, count } = req.body;
+	const { url, name } = req.body;
 	const user = req.user;
-	await services.projectService.saveProject({ url, userId: user._id });
+	await services.projectService.saveProject({ url, userId: user._id, name });
 
 	// @TODO Move this functionality of getting existing.  The logic should still exist somewhere, but 
 	// this specific POST /rating/website route should always re-rate the URLS for a project

@@ -32,6 +32,7 @@ export type Project = {
     _id?: ObjectId;
     url: string;
     userId: ObjectId;
+    name: string;
 };
 
 export type ProjectMetrics = {
