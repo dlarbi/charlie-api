@@ -40,8 +40,8 @@ export class TextScrapingService {
         const result = [];
         for (let i = 0; i < urls.length; i++) {
             const url = urls[i];
-            const { text, title } = await this.getTextByUrl(url);
             if (url.indexOf('.xml') === -1 && url.indexOf('.pdf') === -1 && url.indexOf('.doc') === -1) {
+                const { text, title } = await this.getTextByUrl(url);
                 await services.textContentService.saveTextContent({ text, title, url, projectUrl });
                 result.push({ text, title, url, projectUrl });
             }
