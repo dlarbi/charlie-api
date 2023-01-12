@@ -31,11 +31,12 @@ export class ProjectService {
         return projectModel.getByUrlAndUserId(url, userId);
     }
 
-    getProjectsByUserId = async (userId: ObjectId): Promise<Project[]> => {
-        return projectModel.getByUserId(userId);
+    getProjectsByUserId = async (userId: ObjectId | String): Promise<Project[]> => {
+        return projectModel.getByUserId(String(userId));
     }
 
     saveProject = async (project: Project): Promise<Project> => {
+        console.log(`BEGIN saveProject ${project}`)
         let result: Project;
         if (!project.userId) {
             throw noUserIdException()
@@ -45,6 +46,8 @@ export class ProjectService {
             result = await projectModel.updateProject(project);
             return result;
         } 
+
+        console.log(`END saveProject`)
 
         return projectModel.saveProject(project);
     }

@@ -42,7 +42,7 @@ export class ProjectModel {
         return project;
     }
 
-    getByUserId = async (userId: ObjectId): Promise<Project[]> => {
+    getByUserId = async (userId: string): Promise<Project[]> => {
         const projects = await this.collection.find({ userId }).toArray();
         return projects;
     }

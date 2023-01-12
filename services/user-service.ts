@@ -1,9 +1,12 @@
 import { ObjectId } from 'mongodb';
 import * as jwt from 'jsonwebtoken';
 import { UserModel } from "../models/user";
-import { User } from './../types/types';
+import { AccountType, User } from './../types/types';
 import { Password } from "../modules/password/Password";
 import { GmailSend, MailOptions } from '../modules/gmail-send/GmailSend';
+import { StripePaymentProcessor } from '../modules/stripe/stripe-payment-processor';
+import { TestStripePriceIds } from '../constants/constants';
+import { response } from 'express';
 
 let userModel: UserModel;
 (async () => {
@@ -94,7 +97,15 @@ export class UserService {
         if (existing) {
             throw new Error(`${email} is an existing user.  New user not created.`);
         }
-        const user = { email, password, roles: ['user'], accountType: 'free' };
+        const stripe = new StripePaymentProcessor();
+        const customer = await stripe.createCustomer({ email });
+        const user = { 
+            email, 
+            password, 
+            roles: ['user'], 
+            accountType: 'free', 
+            stripeCustomerId: customer.id 
+        };
         await userModel.saveUser(user);
         const token = jwt.sign(user, process.env.PUBKEY);
 
@@ -123,6 +134,26 @@ export class UserService {
             response = await userModel.updateUser(new ObjectId(existing._id), { ...existing, ...user }); 
         }
         console.log(`END UserService.updateUser`, user);
+        return response;
+    }
+
+    changeAccountType = async (userId: ObjectId, accountType: AccountType) => {
+        const user = await this.findUserById(userId);
+        user.accountType = accountType;
+        
+        const stripe = new StripePaymentProcessor();
+        const paymentMethods = await stripe.getCustomerPaymentMethods(user.stripeCustomerId);
+		const subscription = await stripe.subscribeCustomer(
+            user.stripeCustomerId, 
+            { 
+                price: accountType === 'professional' ? 
+                    TestStripePriceIds.Professional :
+                    TestStripePriceIds.Enterprise,
+            },
+            paymentMethods.data[0].id,
+        );
+        
+        const response = await userModel.updateUser(user._id, { ...user });
         return response;
     }
 

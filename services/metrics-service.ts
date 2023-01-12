@@ -5,7 +5,7 @@ import { TextContentService } from './text-content-service';
 
 const services = {
     textContentService: new TextContentService(),
-    projectService: new ProjectService()
+    projectService: new ProjectService(),
 }
 
 const NO_RATING_ERROR_STATUS = -1;
@@ -41,5 +41,22 @@ export class MetricsService {
             }
             return count;
         }, 0);
+    }
+
+    getUserUsageMetrics = async (userId: ObjectId): Promise<{countUrls: number, countProjects: number}> => { 
+        const projects = await services.projectService.getProjectsByUserId(new ObjectId(userId));
+        console.log(userId, typeof userId, projects)
+        const textContents = [];
+        for (let i=0;i<projects.length;i++) {
+            const url = projects[i].url;
+            const result = await services.textContentService.getTextContentsByProjectUrl(url);
+            console.log(result, 'Text content!', result.length)
+            textContents.push(...result);
+        }
+        console.log(textContents.length, 'totalleng')
+        return {
+            countUrls: textContents.length,
+            countProjects: projects.length
+        }
     }
 }

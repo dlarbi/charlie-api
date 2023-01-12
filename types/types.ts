@@ -22,6 +22,7 @@ export type User = {
     passwordResetToken?: string;
     passwordResetExpiry?: number;
     accountType?: string | AccountType;
+    stripeCustomerId?: string;
 };
 
 export type AccountType = "free" | "professional" | "enterprise";

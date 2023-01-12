@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import { ObjectId } from 'mongodb';
 import * as express from 'express';
+import { StripePaymentProcessor } from './modules/stripe/stripe-payment-processor'
 import * as bodyParser from 'body-parser';
 import { TextContent } from './types/types';
 import { Password } from './modules/password/Password';
@@ -85,6 +86,17 @@ const services = {
 	try {
 		const { projectId } = req.params;
 		const metrics = await services.metricsService.getProjectMetrics(new ObjectId(projectId));
+		res.json({ metrics });
+	} catch (err) {
+		console.error(err);
+		res.status(500).send('Something went wrong');
+	}
+  });
+
+  app.get('/metrics/user/:userId', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const { userId } = req.params;
+		const metrics = await services.metricsService.getUserUsageMetrics(new ObjectId(userId));
 		res.json({ metrics });
 	} catch (err) {
 		console.error(err);
@@ -192,7 +204,8 @@ const services = {
 
   app.post('/auth/token', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
 	try {
-		const user = req.user;
+		const userId = req.user._id;
+		const user = await services.userService.findUserById(new ObjectId(userId));
 		res.json({ user });
 	} catch (err) {
 		console.error(err);
@@ -257,6 +270,115 @@ app.post('/rating/url', async (req: express.Request, res: express.Response) => {
 		console.error(err);
 		res.status(500).send('Something went wrong');
 	}
+});
+
+const stripe = require('stripe')('sk_test_51MLAdBHqswr697OJA6uVHthLGZaQszsHCCWY2l6KDBgLc1I2puf2UdVUyg1NHOcSGjmLxIydDG7Rrh8fnlwuI8eA00Dwrn0cIx', {
+	apiVersion: '2022-11-15',
+});
+
+app.post('/payment/create-user', async (req: express.Request, res: express.Response) => {
+	try {
+		const { email } = req.body;
+		const stripe = new StripePaymentProcessor();
+		const customer = await stripe.createCustomer({ email });
+		res.status(200).json({
+		  message: `User created with email ${email}`,
+		  customer
+		});
+	  } catch (err) {
+		console.log(err);
+		res.status(400).json({
+		  message: "There was an error creating the user.",
+		  error: err,
+		});
+	  }
+});
+
+app.post('/payment/add-method', async (req: express.Request, res: express.Response) => {
+	try {
+		const { customerId, paymentMethodId } = req.body;
+		const stripe = new StripePaymentProcessor();
+		const attachedPaymentMethod = await stripe.attachPaymentMethodToCustomer(customerId, paymentMethodId);
+		res.status(200).json({
+		  message: `Payment method attached to ${customerId}`,
+		  attachedPaymentMethod
+		});
+	  } catch (err) {
+		console.log(err);
+		res.status(400).json({
+		  message: "There was an error creating the user.",
+		  error: err,
+		});
+	  }
+});
+
+app.get('/payment/methods/:customerId', async (req: express.Request, res: express.Response) => {
+	try {
+		const { customerId } = req.params;
+		const stripe = new StripePaymentProcessor();
+		const paymentMethods = await stripe.getCustomerPaymentMethods(customerId);
+		res.status(200).json({
+			paymentMethods
+		});
+	  } catch (err) {
+		console.log(err);
+		res.status(400).json({
+		  message: "There was an error getting payment methods for this user",
+		  error: err,
+		});
+	  }
+});
+
+app.delete('/payment/methods/:paymentMethodId', async (req: express.Request, res: express.Response) => {
+	try {
+		const { paymentMethodId } = req.params;
+		const stripe = new StripePaymentProcessor();
+		const paymentMethods = await stripe.deletePaymentMethod(paymentMethodId);
+		res.status(200).send('Deleted successfully');
+	  } catch (err) {
+		console.log(err);
+		res.status(400).json({
+		  message: "There was an error deleting a payment method for this user",
+		  error: err,
+		});
+	  }
+})
+
+app.post('/payment/subscribe', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const { accountType } = req.body;
+		const user = req.user;
+		const updated = await services.userService.changeAccountType(new ObjectId(user._id), accountType);
+
+		res.status(200).json({
+		  message: `${user.email} upgraded to ${accountType}`,
+		  user: updated,
+		});
+	  } catch (err) {
+		console.log(err);
+		res.status(400).json({
+		  message: "There was an error creating the subscriber.",
+		  error: err,
+		});
+	  }
+});
+
+app.post('/payment/cancel', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const user = req.user;
+		const updated = await services.userService.changeAccountType(new ObjectId(user._id), 'free');
+
+		res.status(200).json({
+		  message: `${user.email} upgraded moved to free account`,
+		  user: updated,
+		});
+	  } catch (err) {
+		console.log(err);
+		res.status(400).json({
+		  message: "There was an error cancelling the subscriber.",
+		  error: err,
+		});
+	  }
 });
 
 const port = 3000
