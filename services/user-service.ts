@@ -156,8 +156,9 @@ export class UserService {
             paymentMethods.data[0].id,
         );
         
-        const response = await userModel.updateUser(new ObjectId(user._id), { ...user });
-        return response;
+        const response = await userModel.updateUser((user._id), { ...user });
+        console.log(`END changeAccountType ${JSON.stringify(user)}`)
+        return user;
     }
 
     deleteUser = async (id: ObjectId): Promise<void> => {
