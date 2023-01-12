@@ -243,13 +243,13 @@ app.post('/rating/website', auth, async (req: IGetUserAuthInfoRequest, res: expr
 
 	// @TODO Move this functionality of getting existing.  The logic should still exist somewhere, but 
 	// this specific POST /rating/website route should always re-rate the URLS for a project
-	const existingTextContent = await services.textContentService.getTextContentsIfRated(url);
-	if (existingTextContent.length) {
-		res.json({
-			results: existingTextContent
-		})
-		return;
-	}
+	// const existingTextContent = await services.textContentService.getTextContentsIfRated(url);
+	// if (existingTextContent.length) {
+	// 	res.json({
+	// 		results: existingTextContent
+	// 	})
+	// 	return;
+	// }
 
 	// TODO: Make this a job that kicks off later	
 	const textContent: TextContent[] = await services.contentRatingService.rateTextContentByCrawlSite(url);
