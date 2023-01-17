@@ -268,11 +268,15 @@ app.post('/rating/website', auth, async (req: IGetUserAuthInfoRequest, res: expr
 	}
 });
 
-app.post('/rating/website?rerate=true', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+app.post('/rating/refresh-website', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
 	try {
-	const { url, count } = req.body;
+	const { url, projectId } = req.body;
 	const user = req.user;
-	await services.textContentService.deleteTextContentsByProjectUrl(url);
+
+	// @TODO Move this functionality of getting existing.  The logic should still exist somewhere, but 
+	// this specific POST /rating/website route should always re-rate the URLS for a project
+	const existingTextContent = await services.textContentService.deleteTextContentsByProjectUrl(url);
+
 	// TODO: Make this a job that kicks off later	
 	const textContent: TextContent[] = await services.contentRatingService.rateTextContentByCrawlSite(url);
 	res.json({ results: textContent });
