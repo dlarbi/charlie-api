@@ -57,10 +57,12 @@ export class ProjectModel {
         }
 
         const existing = await this.getByUrlAndUserId(project.url, project.userId);
+        console.log(existing, 'existing');
         if (existing) {
             throw noDuplicateProjectUrlException();
         }
         const saved = await this.collection.insertOne(project);
+        console.log(saved, 'saved', saved.insertedId)
         const result = await this.getById(saved.insertedId);
         return result;
       }
