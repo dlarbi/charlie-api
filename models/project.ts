@@ -37,7 +37,7 @@ export class ProjectModel {
     }
     
     getById = async (id: ObjectId): Promise<Project> => {  
-        const project = await this.collection.findOne({ _id: String(id) });
+        const project = await this.collection.findOne({ _id: id });
         console.log(project, 'got by id')
         return project;
     }
@@ -63,7 +63,7 @@ export class ProjectModel {
             throw noDuplicateProjectUrlException();
         }
         const saved = await this.collection.insertOne(project);
-        console.log(saved, 'saved', saved.insertedId)
+        console.log(saved, 'saved', typeof saved.insertedId)
         const result = await this.getById(saved.insertedId);
         return result;
       }
