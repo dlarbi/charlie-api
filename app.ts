@@ -133,7 +133,7 @@ const services = {
 		const { contentId } = req.params;
 		const user = req.user;
 
-		const result = await services.textContentService.ignoreTextContent(contentId, true);
+		const result = await services.textContentService.ignoreTextContent(contentId);
 		res.json({ result });
 	} catch (err) {
 		console.error(err);
