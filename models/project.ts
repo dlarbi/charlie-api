@@ -37,7 +37,7 @@ export class ProjectModel {
     }
     
     getById = async (id: ObjectId): Promise<Project> => {  
-        const project = await this.collection.findOne({ _id: id });
+        const project = await this.collection.findOne({ _id: String(id) });
         console.log(project, 'got by id')
         return project;
     }
