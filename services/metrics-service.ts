@@ -28,9 +28,7 @@ export class MetricsService {
 
     getRatedCount = (textContents: TextContent[]) => {
         const ratedCount = textContents.reduce((is, textContent) => {
-            console.log(textContent.rating)
-
-            if (textContent.rating?.overall === NO_RATING_ERROR_STATUS || textContent.isIgnored == true) {
+            if (!textContent.rating || textContent.rating?.overall === NO_RATING_ERROR_STATUS || textContent.isIgnored == true) {
                 return is;
             }
             if (textContent.rating?.overall !== NO_RATING_ERROR_STATUS) {
@@ -51,7 +49,6 @@ export class MetricsService {
         if (!ratedCount) {
             return ProjectStatuses.Extracting;
         }
-        console.log(ratedCount, textContents.length, 'ratedCount')
         if ((ratedCount/textContents.length) < .95) {
             return ProjectStatuses.Analysing;
         }
