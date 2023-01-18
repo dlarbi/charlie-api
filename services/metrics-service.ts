@@ -28,10 +28,12 @@ export class MetricsService {
 
     getRatedCount = (textContents: TextContent[]) => {
         const ratedCount = textContents.reduce((is, textContent) => {
+            console.log(textContent.rating)
+
             if (textContent.rating?.overall === NO_RATING_ERROR_STATUS || textContent.isIgnored == true) {
                 return is;
             }
-            if (textContent.rating?.overall !== -1) {
+            if (textContent.rating?.overall !== NO_RATING_ERROR_STATUS) {
                 is += 1;
             }
             return is;
