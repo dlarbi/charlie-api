@@ -49,7 +49,7 @@ export class MetricsService {
         if (!ratedCount) {
             return ProjectStatuses.Extracting;
         }
-        
+        console.log(ratedCount, textContents.length, 'ratedCount')
         if ((ratedCount/textContents.length) < .95) {
             return ProjectStatuses.Analysing;
         }
