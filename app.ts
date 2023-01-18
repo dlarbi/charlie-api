@@ -243,7 +243,6 @@ app.post('/rating/website', auth, async (req: IGetUserAuthInfoRequest, res: expr
 	const { url, name } = req.body;
 	const user = req.user;
 	const project = await services.projectService.saveProject({ url, userId: user._id, name });
-
 	// TODO: Make this a job that kicks off later	
 	services.contentRatingService.rateTextContentByCrawlSite(url, project._id);
 	res.json({ project });

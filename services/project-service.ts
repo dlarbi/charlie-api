@@ -47,9 +47,10 @@ export class ProjectService {
             return result;
         } 
 
-        console.log(`END saveProject`)
+        const saved = await projectModel.saveProject(project);
+        console.log(`END saveProject`, JSON.stringify(saved));
 
-        return projectModel.saveProject(project);
+        return saved;
     }
 
     deleteProject = async (projectId: ObjectId): Promise<void> => {
