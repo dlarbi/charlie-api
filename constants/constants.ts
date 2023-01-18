@@ -13,3 +13,10 @@ export const TestStripePriceIds = {
     Enterprise: 'price_1MPD1wHqswr697OJ4qh5Cm1L'
 }
 export const NoAccountTypeError = 'no-account-type-error';
+
+export const ProjectStatuses = {
+    Crawling: 'crawling',
+    Extracting: 'extracting',
+    Analysing: 'analysing',
+    Complete: 'complete'
+};

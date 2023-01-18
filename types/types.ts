@@ -41,6 +41,8 @@ export type ProjectMetrics = {
     issues: number;
     score: number;
     analysedAt: Date | string;
+    projectStatus: string;
+    ratedCount: number;
 }
 
 export interface Rating {

@@ -1,4 +1,4 @@
-
+import { ProjectStatuses } from "../constants/constants";
 //Function to get the hostname of a URL
 export function getHostname(url: string): string {
     var hostname;
@@ -42,4 +42,19 @@ export const asyncSpawn = async (command: string, args: string[], options: { cwd
         throw new Error( `subprocess error exit ${exitCode}, ${error}`);
     }
     return data;
+}
+
+
+
+
+export const getProgressFromStatus = status => {
+    let result = 0;
+    status === ProjectStatuses.Crawling ?
+        result = .3 :
+    status === ProjectStatuses.Extracting ?
+        result = .6 :
+    status === ProjectStatuses.Analysing ?
+        result = .8 :
+        result = 1;
+    return result;
 }

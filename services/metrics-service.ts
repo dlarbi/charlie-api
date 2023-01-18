@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb';
 import { TextContent, ProjectMetrics } from '../types/types';
 import { ProjectService } from './project-service';
 import { TextContentService } from './text-content-service';
+import { ProjectStatuses } from "../constants/constants";
 const services = {
     textContentService: new TextContentService(),
     projectService: new ProjectService(),
@@ -13,14 +14,46 @@ const NEGATIVE_THRESHOLD = .8;
 export class MetricsService {
     getProjectMetrics = async (projectId: ObjectId): Promise<ProjectMetrics> => {
         const project = await services.projectService.getProjectById(projectId);
-        const textContents = await services.textContentService.getTextContentsByProjectUrl(project.url);
+        const textContents = await services.textContentService.getTextContentsByProjectId(project._id);
 
         return {
             total: textContents.length,
             issues: this.textContentsToIssueCount(textContents),
             score: this.textContentsToOverallScore(textContents),
+            projectStatus: this.textContentsToProjectStatus(textContents),
+            ratedCount: this.getRatedCount(textContents),
             analysedAt: textContents[0]?.analysedAt
         }
+    }
+
+    getRatedCount = (textContents: TextContent[]) => {
+        const ratedCount = textContents.reduce((is, textContent) => {
+            if (textContent.rating?.overall === NO_RATING_ERROR_STATUS || textContent.isIgnored == true) {
+                return is;
+            }
+            if (textContent.rating?.overall !== -1) {
+                is += 1;
+            }
+            return is;
+        }, 0);
+        return ratedCount
+    }
+
+    textContentsToProjectStatus = (textContents: TextContent[]) => {
+        if (!textContents || !textContents.length) {
+            return ProjectStatuses.Crawling;
+        }
+    
+        const ratedCount = this.getRatedCount(textContents)
+
+        if (!ratedCount) {
+            return ProjectStatuses.Extracting;
+        }
+        
+        if ((ratedCount/textContents.length) < .95) {
+            return ProjectStatuses.Analysing;
+        }
+        return ProjectStatuses.Complete;
     }
 
     textContentsToOverallScore = (textContents: TextContent[]): number => {
