@@ -1,7 +1,9 @@
+import { ObjectId } from 'mongodb';
 import { Readability } from '@mozilla/readability';
 import { JSDOM } from 'jsdom';
 import axios from 'axios';
 import { TextContentService } from './text-content-service';
+import { TextContent } from '../types/types';
 
 const services = {
     textContentService: new TextContentService()
@@ -36,14 +38,14 @@ export class TextScrapingService {
         }  
     }
 
-    getTextContentForUrls = async (urls: string[], projectUrl: string): Promise<{ text: string, title: string, url: string }[]> => {
+    getTextContentForUrls = async (urls: string[], projectUrl: string, projectId: ObjectId): Promise<TextContent[]> => {
         const result = [];
         for (let i = 0; i < urls.length; i++) {
             const url = urls[i];
             if (url.indexOf('.xml') === -1 && url.indexOf('.pdf') === -1 && url.indexOf('.doc') === -1) {
                 const { text, title } = await this.getTextByUrl(url);
-                await services.textContentService.saveTextContent({ text, title, url, projectUrl });
-                result.push({ text, title, url, projectUrl });
+                await services.textContentService.saveTextContent({ text, title, url, projectUrl, projectId });
+                result.push({ text, title, url, projectUrl, projectId });
             }
         }
         return result;

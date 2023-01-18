@@ -11,6 +11,7 @@ export type TextContent = {
     analysedAt?: Date | string;
     createdAt?: Date | string;
     isIgnored?: boolean;
+    projectId: ObjectId | string;
 };
 
 export type User = {

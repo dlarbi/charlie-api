@@ -50,6 +50,11 @@ export class TextContentModel {
         return textContent;
     }
 
+    getByProjectId = async (projectId: ObjectId): Promise<TextContent[]> => {
+      const textContents = await this.collection.find({ projectId }).toArray();
+      return textContents;
+    }
+
     getByUrlAndProjectUrl = async (url: string, projectUrl: string): Promise<TextContent> => {
       const textContent = await this.collection.findOne({ url, projectUrl });
       return textContent;

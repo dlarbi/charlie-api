@@ -46,46 +46,6 @@ export class SitemappingService {
         });
     }
 
-    /**
-     * Better to use the generateSitemap and then getUrlsFromSitemap functions separately
-     * TODO: Remove this function
-     */
-    getUrlsFromParentUrl = async (url: string, depth: number = 10): Promise<string[]> => {
-        console.log(`BEGIN: getUrlsFromParentUrl`);
-        return new Promise(async (resolve, reject) => {
-            const filepath = this.getSitemapFilepath(url);
-
-            const generator = SitemapGenerator(url, {
-                filepath,
-            });
-    
-            const urls = [];
-            generator.on('add', (url: string) => {
-                if (urls.length === depth) {
-                    generator.stop();
-                    resolve(urls);
-                }
-
-                const skipUrl = url.indexOf('sitemap') > -1 ||
-                    url.indexOf('site') > -1 ||
-                    url.indexOf('xml') > -1;
-                if (!skipUrl) {
-                    urls.push(url);
-                }
-            });
-    
-            generator.on('done', (res: any) => {
-                resolve(urls);
-            });
-
-            generator.on('error', (e: any) => {
-                console.log('ERROR getUrlsFromParentUrl', e);
-            });
-
-            generator.start();
-        });
-    }
-
     getUrlsFromSitemap = async (sitemapFilepath: string) => {
         console.log(`BEGIN getUrlsFromSitemap ${sitemapFilepath}`);
         let sitemapUrls: string[] = [];

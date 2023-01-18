@@ -8,6 +8,10 @@ const noUrlException = () => {
   return new Error('Cannot save Project without a url');
 }
 
+const noDuplicateProjectUrlException = () => {
+    return new Error('Cannot save Project with the same url as another Project');
+}
+
 const ProjectSchema = new mongoose.Schema({
   _id: { type: String, required: false },
   userId: { type: String, required: true }
@@ -52,6 +56,10 @@ export class ProjectModel {
             throw noUrlException();
         }
 
+        const existing = await this.getByUrlAndUserId(project.url, project.userId);
+        if (existing) {
+            throw noDuplicateProjectUrlException();
+        }
         await this.collection.insertOne(project);
         const result = await this.getByUrlAndUserId(project.url, project.userId);
         return result;

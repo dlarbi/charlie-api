@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import { ObjectId } from 'mongodb';
 import { TextContent, Rating } from '../types/types';
 import { ContentRater } from './../modules/content-rater/ContentRater';
 import { SitemappingService } from './sitemapping-service';
@@ -19,7 +21,7 @@ let textContentModel: TextContentModel;
 
 export class ContentRatingService {
 
-    rateTextContentByCrawlSite = async (projectUrl: string): Promise<TextContent[]> => {
+    rateTextContentByCrawlSite = async (projectUrl: string, projectId: ObjectId): Promise<TextContent[]> => {
 
         // Generate and save Sitemap, extract URLs from sitemap
         await services.sitemappingService.generateSitemap(projectUrl);
@@ -30,7 +32,30 @@ export class ContentRatingService {
         });
 
         // Get HTML contents from pages, and save
-        const textContentNotRated = await services.textScrapingService.getTextContentForUrls(trimmedUrls, projectUrl);
+        const textContentNotRated = await services.textScrapingService.getTextContentForUrls(trimmedUrls, projectUrl, projectId);
+
+        // Generate ratings for text contents, and resave
+        const ratedTextContents: TextContent[] = await this.rateTextContents(textContentNotRated);
+
+        return ratedTextContents;
+    }
+
+    refreshWebsite = async (projectUrl: string, projectId: ObjectId): Promise<TextContent[]> => {
+
+        // Generate and save Sitemap, extract URLs from sitemap
+        const sitemapFilepath = services.sitemappingService.getSitemapFilepath(projectUrl);
+        if (fs.existsSync(sitemapFilepath)) {
+            fs.unlinkSync(sitemapFilepath);
+            console.log(`Sitemap ${sitemapFilepath} deleted`);
+        }
+        await services.sitemappingService.generateSitemap(projectUrl);
+        const urls = await services.sitemappingService.getUrlsFromSitemap(sitemapFilepath);
+        const trimmedUrls = urls.map((url) => {
+            return url.trim();
+        });
+
+        // Get HTML contents from pages, and save
+        const textContentNotRated = await services.textScrapingService.getTextContentForUrls(trimmedUrls, projectUrl, projectId);
 
         // Generate ratings for text contents, and resave
         const ratedTextContents: TextContent[] = await this.rateTextContents(textContentNotRated);
