@@ -161,6 +161,13 @@ export class UserService {
         return user;
     }
 
+    setUserAccountType = async (userId: ObjectId, accountType: AccountType) => {
+        const user = await this.findUserById(userId);
+        user.accountType = accountType;
+        const response = await userModel.updateUser((user._id), { ...user });
+        return user;
+    }
+
     deleteUser = async (id: ObjectId): Promise<void> => {
         console.log(`BEGIN UserService.deleteUser`, id);
         await userModel.deleteUser(id);

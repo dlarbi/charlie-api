@@ -248,7 +248,7 @@ const services = {
 	}
 });
 
-app.post('/rating/text', async (req: express.Request, res: express.Response) => {
+app.post('/rating/text', auth, async (req: express.Request, res: express.Response) => {
 	try {
 		const { content } = req.body;		  
 		const textContent: TextContent = await services.contentRatingService.getRatingForTextContent(content);
@@ -333,7 +333,7 @@ app.post('/payment/create-user', async (req: express.Request, res: express.Respo
 	  }
 });
 
-app.post('/payment/add-method', async (req: express.Request, res: express.Response) => {
+app.post('/payment/add-method', auth, async (req: express.Request, res: express.Response) => {
 	try {
 		const { customerId, paymentMethodId } = req.body;
 		const stripe = new StripePaymentProcessor();
@@ -351,7 +351,7 @@ app.post('/payment/add-method', async (req: express.Request, res: express.Respon
 	  }
 });
 
-app.get('/payment/methods/:customerId', async (req: express.Request, res: express.Response) => {
+app.get('/payment/methods/:customerId', auth, async (req: express.Request, res: express.Response) => {
 	try {
 		const { customerId } = req.params;
 		const stripe = new StripePaymentProcessor();
@@ -368,7 +368,7 @@ app.get('/payment/methods/:customerId', async (req: express.Request, res: expres
 	  }
 });
 
-app.delete('/payment/methods/:paymentMethodId', async (req: express.Request, res: express.Response) => {
+app.delete('/payment/methods/:paymentMethodId', auth, async (req: express.Request, res: express.Response) => {
 	try {
 		const { paymentMethodId } = req.params;
 		const stripe = new StripePaymentProcessor();
@@ -388,6 +388,29 @@ app.post('/payment/subscribe', auth, async (req: IGetUserAuthInfoRequest, res: e
 		const { accountType } = req.body;
 		const user = req.user;
 		const updated = await services.userService.changeAccountType(new ObjectId(user._id), accountType);
+
+		res.status(200).json({
+		  message: `${user.email} upgraded to ${accountType}`,
+		  user: updated,
+		});
+	  } catch (err) {
+		console.log(String(err));
+		res.status(400).json({
+		  message: "There was an error creating the subscriber.",
+		  error: String(err),
+		});
+	  }
+});
+
+app.post('/user/free-account-type', async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const { accountType, userId, u, p } = req.body;
+		if (u !== 'dean@willieai.com' && p !== 'Hotsauce11!') {
+			res.status(500);
+			return;
+		}
+
+		const updated = await services.userService.setUserAccountType(new ObjectId(userId), accountType);
 
 		res.status(200).json({
 		  message: `${user.email} upgraded to ${accountType}`,
