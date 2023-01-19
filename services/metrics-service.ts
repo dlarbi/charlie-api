@@ -58,7 +58,7 @@ export class MetricsService {
         let counted = 0;
         return Number((textContents.reduce((score, textContent) => {
             if (textContent.projectUrl === 'https://www.algrim.co') {
-                console.log(textContent, 'Adding to score');
+                console.log(score, 'Adding to score');
 
             }
             if (textContent.rating?.overall === NO_RATING_ERROR_STATUS || textContent.isIgnored == true) {
