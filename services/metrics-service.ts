@@ -2,14 +2,13 @@ import { ObjectId } from 'mongodb';
 import { TextContent, ProjectMetrics } from '../types/types';
 import { ProjectService } from './project-service';
 import { TextContentService } from './text-content-service';
-import { ProjectStatuses } from "../constants/constants";
+import { ProjectStatuses, NEGATIVE_THRESHOLD } from "../constants/constants";
 const services = {
     textContentService: new TextContentService(),
     projectService: new ProjectService(),
 }
 
 const NO_RATING_ERROR_STATUS = -1;
-const NEGATIVE_THRESHOLD = .8;
 
 export class MetricsService {
     getProjectMetrics = async (projectId: ObjectId): Promise<ProjectMetrics> => {

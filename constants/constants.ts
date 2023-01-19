@@ -20,3 +20,4 @@ export const ProjectStatuses = {
     Analysing: 'analysing',
     Complete: 'complete'
 };
+export const NEGATIVE_THRESHOLD = .8;

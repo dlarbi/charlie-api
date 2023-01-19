@@ -6,6 +6,7 @@ import { ContentRater } from './../modules/content-rater/ContentRater';
 import { SitemappingService } from './sitemapping-service';
 import { TextContentModel } from './../models/text-content';
 import { ObjectId } from 'mongodb';
+import { NEGATIVE_THRESHOLD } from '../constants/constants';
 
 const services = {
     sitemappingService: new SitemappingService(),
@@ -28,6 +29,14 @@ export class TextContentService {
 
     }
 
+    getFailedTextContentsByProjectId = async (projectId: ObjectId): Promise<TextContent[]> => {
+        const textContents = await textContentModel.getByProjectId(projectId);
+        const failedTextContents = textContents.filter((content) => {
+            return content.rating.overall > NEGATIVE_THRESHOLD
+        })
+        return failedTextContents;
+    }
+
     getTextContentsByProjectUrl = async (projectUrl: string): Promise<TextContent[]> => {
         return textContentModel.getByProjectUrl(projectUrl);
     }
@@ -41,6 +50,24 @@ export class TextContentService {
         for (let i=0;i<textContents.length; i++) {
             await this.deleteTextContent(textContents[i]._id);
         }
+    }
+
+    deleteFailedTextContentsByProjectUrl = async (projectUrl: string): Promise<void> => {
+        const textContents = await textContentModel.getByProjectUrl(projectUrl);
+        const failedTextContents = textContents.filter((content) => {
+            return content.rating.overall > NEGATIVE_THRESHOLD
+        })
+        for (let i=0;i<failedTextContents.length; i++) {
+            await this.deleteTextContent(failedTextContents[i]._id);
+        }
+    }
+
+    getFailedTextContentsByProjectUrl = async (projectUrl: string): Promise<TextContent[]> => {
+        const textContents = await textContentModel.getByProjectUrl(projectUrl);
+        const failedTextContents = textContents.filter((content) => {
+            return content.rating.overall > NEGATIVE_THRESHOLD
+        })
+        return failedTextContents;
     }
 
     getTextContentsIfRated = async (projectUrl: string) => {

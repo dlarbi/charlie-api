@@ -108,4 +108,10 @@ export class ContentRatingService {
         }
         return result;
     }
+
+    rerateFailedTextContents = async (projectId: ObjectId): Promise<void> => {
+        const failedTextContents = await services.textContentService.getFailedTextContentsByProjectId(projectId);
+        await this.rateTextContents(failedTextContents);
+    }
+
 }

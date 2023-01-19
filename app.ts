@@ -257,12 +257,8 @@ app.post('/rating/refresh-website', auth, async (req: IGetUserAuthInfoRequest, r
 	const { url, projectId } = req.body;
 	const user = req.user;
 
-	// @TODO Move this functionality of getting existing.  The logic should still exist somewhere, but 
-	// this specific POST /rating/website route should always re-rate the URLS for a project
-	await services.textContentService.deleteTextContentsByProjectUrl(url);
-
 	// TODO: Make this a job that kicks off later	
-	services.contentRatingService.refreshWebsite(url, new ObjectId(projectId));
+	services.contentRatingService.rerateFailedTextContents(new ObjectId(projectId));
 	res.json({message: 'success'});
 	} catch (err) {
 		console.error('ERROR: POST /rating/website', err);
@@ -275,7 +271,7 @@ app.post('/rating/refresh-content', auth, async (req: IGetUserAuthInfoRequest, r
 		const { url, projectUrl, projectId } = req.body; 
 		const user = req.user;
 		const { text, title } = await services.textScrapingService.getTextByUrl(url);
-		const textContent: TextContent = await services.contentRatingService.rateTextContent({ text, title, userId: user._id, url, projectUrl, isIgnored: false, projectId });
+		const textContent: TextContent = await services.contentRatingService.rateTextContent({ text, title, userId: user._id, url, projectUrl, isIgnored: false, projectId: new ObjectId(projectId) });
 		res.json({ results: textContent });
 	} catch (err) {
 		console.error(err);
