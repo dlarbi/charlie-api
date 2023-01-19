@@ -5,7 +5,7 @@ import { AccountType, User } from './../types/types';
 import { Password } from "../modules/password/Password";
 import { GmailSend, MailOptions } from '../modules/gmail-send/GmailSend';
 import { StripePaymentProcessor } from '../modules/stripe/stripe-payment-processor';
-import { TestStripePriceIds, NoAccountTypeError } from '../constants/constants';
+import { StripePriceIds, NoAccountTypeError } from '../constants/constants';
 import { response } from 'express';
 
 let userModel: UserModel;
@@ -150,8 +150,8 @@ export class UserService {
             user.stripeCustomerId, 
             { 
                 price: accountType === 'professional' ? 
-                    TestStripePriceIds.Professional :
-                    TestStripePriceIds.Enterprise,
+                    StripePriceIds.Professional :
+                    StripePriceIds.Enterprise,
             },
             paymentMethods.data[0].id,
         );
