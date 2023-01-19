@@ -2,7 +2,8 @@ export const UNDEFINED_PROJECT_URL = 'content-audit';
 export const AccountTypes = {
     Free: 'free',
     Professional: 'professional',
-    Enterprise: 'enterprise'
+    Enterprise: 'enterprise',
+    God: 'god'
 }
 export const StripePriceIds = {
     Professional: 'price_1MPAO4Hqswr697OJl8RGo9og',
