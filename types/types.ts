@@ -27,7 +27,7 @@ export type User = {
     stripeCustomerId?: string;
 };
 
-export type AccountType = "free" | "professional" | "enterprise";
+export type AccountType = "free" | "professional" | "enterprise" | "god";
 
 export type Project = {
     _id?: ObjectId;
