@@ -54,8 +54,7 @@ export class ProjectService {
     }
 
     deleteProject = async (projectId: ObjectId): Promise<void> => {
-        const project = await this.getProjectById(projectId);
-        const textContents = await services.textContentService.getTextContentsByProjectUrl(project.url);
+        const textContents = await services.textContentService.getTextContentsByProjectId(projectId);
         for(let i=0;i<textContents.length;i++) {
             await services.textContentService.deleteTextContent(textContents[i]?._id);
         }
