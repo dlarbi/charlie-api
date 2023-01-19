@@ -109,9 +109,15 @@ export class ContentRatingService {
         return result;
     }
 
-    rerateFailedTextContents = async (projectId: ObjectId): Promise<void> => {
+    unrateFailedTextContents = async (projectId: ObjectId): Promise<TextContent[]> => {
         const failedTextContents = await services.textContentService.getFailedTextContentsByProjectId(projectId);
-        await this.rateTextContents(failedTextContents);
+        const toSave = failedTextContents.map((content) => { 
+            content.rating.overall = -1; 
+            return content; 
+        })
+        const result = await services.textContentService.saveTextContents(toSave, toSave[0].projectUrl);
+        return result;
     }
+
 
 }

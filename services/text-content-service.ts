@@ -32,7 +32,7 @@ export class TextContentService {
     getFailedTextContentsByProjectId = async (projectId: ObjectId): Promise<TextContent[]> => {
         const textContents = await textContentModel.getByProjectId(projectId);
         const failedTextContents = textContents.filter((content) => {
-            return content.rating.overall > NEGATIVE_THRESHOLD
+            return content.rating.overall < NEGATIVE_THRESHOLD
         })
         return failedTextContents;
     }
@@ -55,7 +55,7 @@ export class TextContentService {
     deleteFailedTextContentsByProjectUrl = async (projectUrl: string): Promise<void> => {
         const textContents = await textContentModel.getByProjectUrl(projectUrl);
         const failedTextContents = textContents.filter((content) => {
-            return content.rating.overall > NEGATIVE_THRESHOLD
+            return content.rating.overall < NEGATIVE_THRESHOLD
         })
         for (let i=0;i<failedTextContents.length; i++) {
             await this.deleteTextContent(failedTextContents[i]._id);

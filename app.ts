@@ -258,8 +258,9 @@ app.post('/rating/refresh-website', auth, async (req: IGetUserAuthInfoRequest, r
 	const user = req.user;
 
 	// TODO: Make this a job that kicks off later	
-	services.contentRatingService.rerateFailedTextContents(new ObjectId(projectId));
-	res.json({message: 'success'});
+	const results = await services.contentRatingService.unrateFailedTextContents(new ObjectId(projectId));
+	services.contentRatingService.rateTextContents(results);
+	res.json({ results });
 	} catch (err) {
 		console.error('ERROR: POST /rating/website', err);
 		res.status(500).send('Something went wrong');
