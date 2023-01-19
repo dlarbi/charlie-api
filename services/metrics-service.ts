@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { TextContent, ProjectMetrics } from '../types/types';
 import { ProjectService } from './project-service';
 import { TextContentService } from './text-content-service';
-import { ProjectStatuses, NEGATIVE_THRESHOLD } from "../constants/constants";
+import { ProjectStatuses, NEGATIVE_THRESHOLD, UnpublishedTitle } from "../constants/constants";
 const services = {
     textContentService: new TextContentService(),
     projectService: new ProjectService(),
@@ -57,7 +57,7 @@ export class MetricsService {
     textContentsToOverallScore = (textContents: TextContent[]): number => {
         let counted = 0;
         return Number((textContents.reduce((score, textContent) => {
-            if (isNaN(textContent.rating?.overall) || (textContent.rating?.overall === NO_RATING_ERROR_STATUS || textContent.isIgnored == true)) {
+            if (isNaN(textContent.rating?.overall) || (textContent.rating?.overall === NO_RATING_ERROR_STATUS || textContent.isIgnored == true || textContent.title === UnpublishedTitle)) {
                 return score;
             }
             score += textContent.rating?.overall;

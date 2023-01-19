@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 
-const stripe = new Stripe('sk_test_51MLAdBHqswr697OJA6uVHthLGZaQszsHCCWY2l6KDBgLc1I2puf2UdVUyg1NHOcSGjmLxIydDG7Rrh8fnlwuI8eA00Dwrn0cIx', {
+const stripe = new Stripe(process.env.STRIPE_SK, {
     apiVersion: '2022-11-15',
 });
 export class StripePaymentProcessor {

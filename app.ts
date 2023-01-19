@@ -293,9 +293,6 @@ app.post('/rating/url', auth, async (req: IGetUserAuthInfoRequest, res: express.
 	}
 });
 
-const stripe = require('stripe')('sk_test_51MLAdBHqswr697OJA6uVHthLGZaQszsHCCWY2l6KDBgLc1I2puf2UdVUyg1NHOcSGjmLxIydDG7Rrh8fnlwuI8eA00Dwrn0cIx', {
-	apiVersion: '2022-11-15',
-});
 
 app.post('/payment/create-user', async (req: express.Request, res: express.Response) => {
 	try {

@@ -21,3 +21,4 @@ export const ProjectStatuses = {
     Complete: 'complete'
 };
 export const NEGATIVE_THRESHOLD = .8;
+export const UnpublishedTitle = 'GET_HTML_ERROR';
