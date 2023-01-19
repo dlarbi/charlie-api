@@ -57,10 +57,6 @@ export class MetricsService {
     textContentsToOverallScore = (textContents: TextContent[]): number => {
         let counted = 0;
         return Number((textContents.reduce((score, textContent) => {
-            if (textContent.projectUrl === 'https://www.algrim.co') {
-                console.log(score, 'Adding to score');
-
-            }
             if (isNaN(textContent.rating?.overall) || (textContent.rating?.overall === NO_RATING_ERROR_STATUS || textContent.isIgnored == true)) {
                 return score;
             }
