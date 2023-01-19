@@ -19,18 +19,31 @@ import { MetricsService } from './services/metrics-service';
 import { getHostname } from './utils/utils';
 import { UNDEFINED_PROJECT_URL } from './constants/constants';
 import * as Sentry from "@sentry/node";
-// Importing @sentry/tracing patches the global hub for tracing to work.
-import "@sentry/tracing";
-Sentry.init({
-	dsn: "https://6b3affa244064cad97ac195e9a7ca665@o4504533365882880.ingest.sentry.io/4504533418115072",
-
-	// Set tracesSampleRate to 1.0 to capture 100%
-	// of transactions for performance monitoring.
-	// We recommend adjusting this value in production
-	tracesSampleRate: .2,
-});
+import * as Tracing from "@sentry/tracing";
 
 const app = express();
+
+Sentry.init({
+  dsn: "https://55f90026ef734ef5b1de882f11d8e746@o4504533365882880.ingest.sentry.io/4504533486075904",
+  integrations: [
+    // enable HTTP calls tracing
+    new Sentry.Integrations.Http({ tracing: true }),
+    // enable Express.js middleware tracing
+    new Tracing.Integrations.Express({ app }),
+  ],
+
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 0.2,
+});
+
+// RequestHandler creates a separate execution context using domains, so that every
+// transaction/span/breadcrumb is attached to its own Hub instance
+app.use(Sentry.Handlers.requestHandler());
+// TracingHandler creates a trace for every incoming request
+app.use(Sentry.Handlers.tracingHandler());
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(function(req: express.Request, res: express.Response, next: any) {
@@ -405,6 +418,16 @@ app.post('/payment/cancel', auth, async (req: IGetUserAuthInfoRequest, res: expr
 		  error: err,
 		});
 	  }
+});
+
+// The error handler must be before any other error middleware and after all controllers
+app.use(Sentry.Handlers.errorHandler());
+// Optional fallthrough error handler
+app.use(function onError(err, req, res, next) {
+	// The error id is attached to `res.sentry` to be returned
+	// and optionally displayed to the user for support.
+	res.statusCode = 500;
+	res.end(res.sentry + "\n");
 });
 
 const port = 3000
