@@ -61,7 +61,7 @@ export class MetricsService {
                 console.log(score, 'Adding to score');
 
             }
-            if (textContent.rating?.overall === NO_RATING_ERROR_STATUS || textContent.isIgnored == true) {
+            if (!isNaN(textContent.rating?.overall) && (textContent.rating?.overall === NO_RATING_ERROR_STATUS || textContent.isIgnored == true)) {
                 return score;
             }
             score += textContent.rating?.overall;
