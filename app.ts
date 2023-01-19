@@ -413,7 +413,7 @@ app.post('/user/free-account-type', async (req: IGetUserAuthInfoRequest, res: ex
 		const updated = await services.userService.setUserAccountType(new ObjectId(userId), accountType);
 
 		res.status(200).json({
-		  message: `${user.email} upgraded to ${accountType}`,
+		  message: `${userId} upgraded to ${accountType}`,
 		  user: updated,
 		});
 	  } catch (err) {
