@@ -18,6 +18,17 @@ import { ProjectService } from './services/project-service';
 import { MetricsService } from './services/metrics-service';
 import { getHostname } from './utils/utils';
 import { UNDEFINED_PROJECT_URL } from './constants/constants';
+import * as Sentry from "@sentry/node";
+// Importing @sentry/tracing patches the global hub for tracing to work.
+import "@sentry/tracing";
+Sentry.init({
+	dsn: "https://6b3affa244064cad97ac195e9a7ca665@o4504533365882880.ingest.sentry.io/4504533418115072",
+
+	// Set tracesSampleRate to 1.0 to capture 100%
+	// of transactions for performance monitoring.
+	// We recommend adjusting this value in production
+	tracesSampleRate: .2,
+});
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
