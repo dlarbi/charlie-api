@@ -57,7 +57,10 @@ export class MetricsService {
     textContentsToOverallScore = (textContents: TextContent[]): number => {
         let counted = 0;
         return Number((textContents.reduce((score, textContent) => {
-            console.log(textContent, 'Adding to score');
+            if (textContent.projectUrl === 'https://www.algrim.co') {
+                console.log(textContent, 'Adding to score');
+
+            }
             if (textContent.rating?.overall === NO_RATING_ERROR_STATUS || textContent.isIgnored == true) {
                 return score;
             }
