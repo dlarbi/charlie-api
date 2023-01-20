@@ -21,7 +21,7 @@ export class TextScrapingService {
             const html = await axios.get(url, { 
                 headers: { "Accept-Encoding": "gzip,deflate,compress" } 
             });
-            const headers = this.getHeadersFromHtml(html.data);
+            // const headers = this.getHeadersFromHtml(html.data);
             const doc = new JSDOM(html.data, { url });
             const reader = new Readability(doc.window.document);
             const article = reader.parse();
