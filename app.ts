@@ -49,7 +49,7 @@ app.use(bodyParser.json());
 app.use(function(req: express.Request, res: express.Response, next: any) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, authorization");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, authorization, sentry-trace, baggage");
 	next();
 });
 

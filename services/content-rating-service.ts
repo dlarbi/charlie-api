@@ -82,6 +82,7 @@ export class ContentRatingService {
     };
 
     rateTextContent = async (textContent: TextContent): Promise<TextContent> => {
+        console.log('BEGIN rateTextContent', textContent.url);
         const contentRater = new ContentRater();
         let rating: Rating;
         try {
@@ -95,17 +96,19 @@ export class ContentRatingService {
             rating,
             analysedAt: new Date()
         });
-
+        console.log('END rateTextContent');
         return result;
     };
 
     rateTextContents = async (content: TextContent[]): Promise<TextContent[]> => {
+        console.log(`BEGIN rateTextContents with ${content?.length} contents`);
         const result = []
         for (let i = 0; i < content.length; i++) {
             const textContent = content[i];
             const ratedTextContent = await this.rateTextContent(textContent);
             result.push(ratedTextContent);
         }
+        console.log(`END rateTextContents with ${content?.length} contents`);
         return result;
     }
 

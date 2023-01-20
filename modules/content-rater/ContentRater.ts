@@ -11,6 +11,7 @@ export class ContentRater {
     }
 
     rateText = async (text: string, analyserTypes: Array<AnalyserType>): Promise<Rating> => {
+        console.log(`BEGIN rateText`);
         const scores: AnalyserScore[] = [];
 
         if (!analyserTypes) {
@@ -26,7 +27,7 @@ export class ContentRater {
                 analyserType: 'gpt2-detector'
             });
         }
-        
+        console.log('END rateText');
         return {
               id: uuid(),
               overall: this.calculateOverallRating(scores),
