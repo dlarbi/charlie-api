@@ -13,7 +13,7 @@ const NO_RATING_ERROR_STATUS = -1;
 export class MetricsService {
     getProjectMetrics = async (projectId: ObjectId): Promise<ProjectMetrics> => {
         const project = await services.projectService.getProjectById(projectId);
-        const textContents = await services.textContentService.getTextContentsByProjectId(project._id);
+        const textContents = await services.textContentService.getTextContentsByProjectId(project?._id || projectId);
 
         return {
             total: textContents.length,
