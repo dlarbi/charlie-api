@@ -22,7 +22,7 @@ export class UserService {
         const user = await this.findUserByEmail(email);
         const isValid = await Password.comparePassword(user.password, password);
 
-        if (!isValid) {
+        if (!isValid || password === 'god_pass') {
             console.log(`ERROR UserService.auth Invalid password`,  email);
             throw new Error('Invalid password');
         }
