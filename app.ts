@@ -449,7 +449,7 @@ app.get('/user/list', auth, async (req: IGetUserAuthInfoRequest, res: express.Re
 				email: users[i].email,
 				projects: []
 			}
-			const projects = await services.projectService.getProjectsByUserId(user._id);
+			const projects = await services.projectService.getProjectsByUserId(users[i]._id);
 			user.projects = projects;
 			results[user.email] = user;
 		}
