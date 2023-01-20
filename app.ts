@@ -239,7 +239,7 @@ const services = {
 		const { projectId } = req.params;		
 		const userId = req.user._id;
 
-		const textContent = await services.textContentService.getTextContentsByProjectId(new ObjectId(projectId));
+		const textContent = await services.textContentService.getTextContentsByProjectIdPaginated(new ObjectId(projectId), 0, 2500);
 
 		res.json({ results: textContent });
 	} catch (err) {

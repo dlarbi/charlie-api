@@ -26,7 +26,10 @@ export class TextContentService {
 
     getTextContentsByProjectId = async (projectId: ObjectId): Promise<TextContent[]> => {
         return textContentModel.getByProjectId(projectId);
+    }
 
+    getTextContentsByProjectIdPaginated = async (projectId: ObjectId, page: number, count: number): Promise<TextContent[]> => {
+        return textContentModel.getByProjectIdPaginated(projectId, page, count);
     }
 
     getFailedTextContentsByProjectId = async (projectId: ObjectId): Promise<TextContent[]> => {

@@ -39,6 +39,14 @@ export class TextContentModel {
         const textContent = await this.collection.find().toArray();
         return textContent;
     }
+
+    getAllPaginated = async (page: number, count: number): Promise<TextContent[]> => {
+      const textContents = await this.collection.find({}, {
+          limit: count,
+          skip: page * count
+      }).toArray();
+      return textContents;
+  }
     
     getById = async (id: ObjectId): Promise<TextContent> => {  
         const textContent = await this.collection.findOne({ _id: id });
@@ -52,6 +60,14 @@ export class TextContentModel {
 
     getByProjectId = async (projectId: ObjectId): Promise<TextContent[]> => {
       const textContents = await this.collection.find({ projectId }).toArray();
+      return textContents;
+    }
+
+    getByProjectIdPaginated = async (projectId: ObjectId, page: number, count: number): Promise<TextContent[]> => {
+      const textContents = await this.collection.find({ projectId }, {
+        limit: count,
+        skip: page * count
+      }).toArray();
       return textContents;
     }
 
