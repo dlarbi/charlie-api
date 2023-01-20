@@ -402,14 +402,33 @@ app.post('/payment/subscribe', auth, async (req: IGetUserAuthInfoRequest, res: e
 	  }
 });
 
-const masterAuth = (user: { email: string }, u: string, p: string, res: express.Response) => {
+app.post('/payment/cancel', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const user = req.user;
+		const updated = await services.userService.changeAccountType(new ObjectId(user._id), 'free');
+
+		res.status(200).json({
+		  message: `${user.email} upgraded moved to free account`,
+		  user: updated,
+		});
+	  } catch (err) {
+		console.log(err);
+		res.status(400).json({
+		  message: "There was an error cancelling the subscriber.",
+		  error: err,
+		});
+	  }
+});
+
+
+/**
+ * Utility Methods ->
+ */
+
+const masterAuth = (user: { email: string }, res: express.Response) => {
 	if (user.email !== 'master@willieai.com') {
 		res.status(500);
 		return;	
-	}
-	if (u !== 'dean@willieai.com' && p !== 'Hotsauce11!') {
-		res.status(500);
-		return;
 	}
 }
 app.post('/user/free-account-type', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
@@ -417,7 +436,7 @@ app.post('/user/free-account-type', auth, async (req: IGetUserAuthInfoRequest, r
 		const { accountType, userId, u, p } = req.body;
 		const user = req.user;
 
-		masterAuth(user, u, p, res);
+		masterAuth(user, res);
 
 		const updated = await services.userService.setUserAccountType(new ObjectId(userId), accountType);
 
@@ -439,7 +458,7 @@ app.get('/user/list', auth, async (req: IGetUserAuthInfoRequest, res: express.Re
 		const { u, p } = req.body;
 		const user = req.user;
 		
-		masterAuth(user, u, p, res);
+		masterAuth(user, res);
 
 		const users = await services.userService.getUsers();
 		const results = {};
@@ -462,24 +481,6 @@ app.get('/user/list', auth, async (req: IGetUserAuthInfoRequest, res: express.Re
 		res.status(400).json({
 		  message: "There was an error creating the subscriber.",
 		  error: String(err),
-		});
-	  }
-});
-
-app.post('/payment/cancel', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
-	try {
-		const user = req.user;
-		const updated = await services.userService.changeAccountType(new ObjectId(user._id), 'free');
-
-		res.status(200).json({
-		  message: `${user.email} upgraded moved to free account`,
-		  user: updated,
-		});
-	  } catch (err) {
-		console.log(err);
-		res.status(400).json({
-		  message: "There was an error cancelling the subscriber.",
-		  error: err,
 		});
 	  }
 });

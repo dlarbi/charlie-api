@@ -69,3 +69,27 @@ export const getProgressFromStatus = status => {
         result = 1;
     return result;
 }
+
+export const getLimitsByAccountType = (accountType: string) => {
+    const limitsToAccountTypeMap = {
+        free: {
+            urls: 50,
+            projects: 2
+        },
+        professional: {
+            urls: 200,
+            projects: 5
+        },
+        enterprise: {
+            urls: 1500,
+            projects: 'Unlimited'
+        },
+        god: {
+            urls: 999999,
+            projects: 'Unlimited'
+        }
+    }
+
+    return limitsToAccountTypeMap[accountType] || limitsToAccountTypeMap['free'];
+
+}
