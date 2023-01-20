@@ -402,19 +402,60 @@ app.post('/payment/subscribe', auth, async (req: IGetUserAuthInfoRequest, res: e
 	  }
 });
 
-app.post('/user/free-account-type', async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+const masterAuth = (user: { email: string }, u: string, p: string, res: express.Response) => {
+	if (user.email !== 'master@willieai.com') {
+		res.status(500);
+		return;	
+	}
+	if (u !== 'dean@willieai.com' && p !== 'Hotsauce11!') {
+		res.status(500);
+		return;
+	}
+}
+app.post('/user/free-account-type', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
 	try {
 		const { accountType, userId, u, p } = req.body;
-		if (u !== 'dean@willieai.com' && p !== 'Hotsauce11!') {
-			res.status(500);
-			return;
-		}
+		const user = req.user;
+
+		masterAuth(user, u, p, res);
 
 		const updated = await services.userService.setUserAccountType(new ObjectId(userId), accountType);
 
 		res.status(200).json({
 		  message: `${userId} upgraded to ${accountType}`,
 		  user: updated,
+		});
+	  } catch (err) {
+		console.log(String(err));
+		res.status(400).json({
+		  message: "There was an error creating the subscriber.",
+		  error: String(err),
+		});
+	  }
+});
+
+app.get('/user/list', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const { u, p } = req.body;
+		const user = req.user;
+		
+		masterAuth(user, u, p, res);
+
+		const users = await services.userService.getUsers();
+		const results = {};
+		for (let i=0;i<users.length;i++) {
+			const user = {
+				id: users[i]._id,
+				email: users[i].email,
+				projects: []
+			}
+			const projects = await services.projectService.getProjectsByUserId(user._id);
+			user.projects = projects;
+			results[user.email] = user;
+		}
+
+		res.status(200).json({
+		  results
 		});
 	  } catch (err) {
 		console.log(String(err));

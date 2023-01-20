@@ -180,5 +180,10 @@ export class UserService {
         await userModel.deleteUser(id);
         console.log(`END UserService.deleteUser`, id);
     }
+
+    getUsers = async (): Promise<User[]> => {
+        const users = await userModel.getAll();
+        return users;
+    }
 }
 
