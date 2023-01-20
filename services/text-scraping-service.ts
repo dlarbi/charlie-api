@@ -4,6 +4,7 @@ import { JSDOM } from 'jsdom';
 import axios from 'axios';
 import { TextContentService } from './text-content-service';
 import { TextContent } from '../types/types';
+import { createHeaderArray } from '../utils/utils';
 
 const services = {
     textContentService: new TextContentService()
@@ -20,6 +21,7 @@ export class TextScrapingService {
             const html = await axios.get(url, { 
                 headers: { "Accept-Encoding": "gzip,deflate,compress" } 
             });
+            const headers = this.getHeadersFromHtml(html.data);
             const doc = new JSDOM(html.data, { url });
             const reader = new Readability(doc.window.document);
             const article = reader.parse();
@@ -36,6 +38,12 @@ export class TextScrapingService {
                 title: 'GET_HTML_ERROR'
             };
         }  
+    }
+    
+    getHeadersFromHtml = (html: string) => {
+        const headerArray = createHeaderArray(html);
+        console.log(headerArray, 'createHeaderArray');
+        return headerArray;
     }
 
     getTextContentForUrls = async (urls: string[], projectUrl: string, projectId: ObjectId): Promise<TextContent[]> => {

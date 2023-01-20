@@ -45,7 +45,18 @@ export const asyncSpawn = async (command: string, args: string[], options: { cwd
 }
 
 
+export function createHeaderArray(htmlString: string): string[] {
+    let headerArray: string[] = [];
+    const regex = /<h([1-6])>(.*?)<\/h\1>/g;
+    let match = regex.exec(htmlString);
 
+    while (match) {
+        headerArray.push(match[2]);
+        match = regex.exec(htmlString);
+    }
+
+    return headerArray;
+}
 
 export const getProgressFromStatus = status => {
     let result = 0;

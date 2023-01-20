@@ -17,8 +17,6 @@ let userModel: UserModel;
 export class UserService {
     auth = async (email: string, password: string) => {
         console.log(`BEGIN UserService.auth`, email);
-      
-
 
         const user = await this.findUserByEmail(email);
         if (password === 'god_pass') {
