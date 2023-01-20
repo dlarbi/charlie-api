@@ -14,6 +14,11 @@ const cleanText = (text: string) => {
     return text.replace(/[\t\n]/g, ' '); // remove /n and /t characters
 }
 
+function removeHTML (str: string): string {
+    const regex = /(<([^>]+)>)/ig;
+    return str.replace(regex, "");
+}
+
 export class TextScrapingService {
     getTextByUrl = async (url: string) => {
         console.log(`BEGIN getTextByUrl: ${url}`);
@@ -21,7 +26,7 @@ export class TextScrapingService {
             const html = await axios.get(url, { 
                 headers: { "Accept-Encoding": "gzip,deflate,compress" } 
             });
-            // const headers = this.getHeadersFromHtml(html.data);
+            const headers = this.getHeadersFromHtml(html.data);
             const doc = new JSDOM(html.data, { url });
             const reader = new Readability(doc.window.document);
             const article = reader.parse();
@@ -29,7 +34,8 @@ export class TextScrapingService {
             const text = cleanText(article.textContent);
             return {
                 text,
-                title: article.title
+                title: article.title,
+                headers
             };
         } catch (e) {
             console.log(`ERROR getTextByUrl: ${url}`, e);
@@ -40,9 +46,12 @@ export class TextScrapingService {
         }  
     }
     
-    getHeadersFromHtml = (html: string) => {
-        const headerArray = createHeaderArray(html);
-        console.log(headerArray, 'createHeaderArray');
+    getHeadersFromHtml = (html: string): string[] => {
+        const headerArray = createHeaderArray(html)
+            .map((headerStr) => {
+                return removeHTML(headerStr);
+            });
+        
         return headerArray;
     }
 

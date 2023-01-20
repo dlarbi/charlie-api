@@ -12,6 +12,7 @@ export type TextContent = {
     createdAt?: Date | string;
     isIgnored?: boolean;
     projectId: ObjectId | string;
+    headers?: string[];
 };
 
 export type User = {
