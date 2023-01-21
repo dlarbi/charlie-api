@@ -16,7 +16,9 @@ export class GPT2TextDetector {
     analyse = async (text: string): Promise<GPT2DetectorResult> => {
         console.log(`BEGIN: GPT2TextDetector.analyse`, text.substring(0, 20));
         const encodedUrl = encodeURIComponent(text);
-        const response = await axios.get(`${process.env.GPT2_DETECTOR_SERVER_URL}/?${encodedUrl}`);
+        const response = await axios.get(`${process.env.GPT2_DETECTOR_SERVER_URL}/?${encodedUrl}`, {
+          timeout: 3000
+        });
         console.log(`END GPT2TextDetector.analyse`);
         return response.data;
       }
