@@ -60,7 +60,7 @@ export class TextScrapingService {
         const result = [];
         for (let i = 0; i < urls.length; i++) {
             const url = urls[i];
-            if (url.indexOf('.xml') === -1 && url.indexOf('.pdf') === -1 && url.indexOf('.doc') === -1) {
+            if (url.indexOf('.xml') === -1 && url.indexOf('.pdf') === -1 && url.indexOf('.doc') === -1  && url.indexOf('.jar') === -1 && url.indexOf('.doc') === -1  && url.indexOf('.xls') === -1 && url.indexOf('.csv') === -1) {
                 const { text, title, headers } = await this.getTextByUrl(url);
                 await services.textContentService.saveTextContent({ text, title, url, projectUrl, projectId, headers });
                 result.push({ text, title, url, projectUrl, projectId, headers });

@@ -282,9 +282,8 @@ app.post('/rating/refresh-website', auth, async (req: IGetUserAuthInfoRequest, r
 	const results = await services.contentRatingService.unrateFailedTextContents(new ObjectId(projectId));
 	try {
 		const rated = services.contentRatingService.rateTextContents(results);
-		console.log(rated, 'rated!')
 	} catch (e) {
-console.log(e);
+		console.log(e);
 	}
 	res.json({ results });
 	} catch (err) {
