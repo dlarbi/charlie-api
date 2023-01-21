@@ -3,6 +3,7 @@ import { Project, Rating } from '../types/types';
 import { SitemappingService } from './sitemapping-service';
 import { TextScrapingService } from './text-scraping-service';
 import { ProjectModel } from '../models/project';
+import { ProjectJobModel } from '../models/project-job';
 import { TextContentService } from './text-content-service';
 
 const services = {
@@ -12,8 +13,10 @@ const services = {
 };
 
 let projectModel: ProjectModel;
+let projectJobModel: ProjectJobModel;
 (async () => {
-    projectModel = new ProjectModel()
+    projectModel = new ProjectModel();
+    projectJobModel = new ProjectJobModel();
     await projectModel.connect();
 })();
 
@@ -51,6 +54,15 @@ export class ProjectService {
         console.log(`END saveProject`, JSON.stringify(saved));
 
         return saved;
+    }
+
+    startProjectJob = async (project: Project) => {
+        const projectJob = await projectJobModel.save(project);
+        // get all conetnt for the project
+        const textContents = await services.textContentService.getUnratedTextContentsByProjectId(project._id || projectJob.projectId)
+        // start from the last content in the project without a rating
+            // if no content -- restatrt
+            // if some content rated, start at the last content which is rated + 1
     }
 
     deleteProject = async (projectId: ObjectId): Promise<void> => {

@@ -23,3 +23,4 @@ export const ProjectStatuses = {
 };
 export const NEGATIVE_THRESHOLD = .8;
 export const UnpublishedTitle = 'GET_HTML_ERROR';
+export const NO_RATING_VAL = -1;

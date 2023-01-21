@@ -73,3 +73,9 @@ export interface AnalyserScore {
     analyserType: AnalyserType;
     detectorResult: GPT2DetectorResult;
 };
+
+export type ProjectJob = {
+    projectId: ObjectId;
+    status: string;
+    lastRun: string | Date;
+}

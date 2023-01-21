@@ -6,6 +6,7 @@ import { SitemappingService } from './sitemapping-service';
 import { TextScrapingService } from './text-scraping-service';
 import { TextContentModel } from './../models/text-content';
 import { TextContentService } from './text-content-service';
+import { NO_RATING_VAL } from '../constants/constants';
 
 const services = {
     sitemappingService: new SitemappingService(),
@@ -115,7 +116,7 @@ export class ContentRatingService {
     unrateFailedTextContents = async (projectId: ObjectId): Promise<TextContent[]> => {
         const failedTextContents = await services.textContentService.getFailedTextContentsByProjectId(projectId);
         const toSave = failedTextContents.map((content) => { 
-            content.rating.overall = -1; 
+            content.rating.overall = NO_RATING_VAL; 
             return content; 
         })
         const result = await services.textContentService.saveTextContents(toSave, toSave[0].projectUrl);

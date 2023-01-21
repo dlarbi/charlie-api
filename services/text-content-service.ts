@@ -1,8 +1,7 @@
 import * as crypto from 'crypto';
 import { v4 as uuid } from 'uuid';
 import { TextContent, Rating } from '../types/types';
-import { exampleTextContent } from '../mocks/text-content';
-import { ContentRater } from './../modules/content-rater/ContentRater';
+import { NO_RATING_VAL } from '../constants/constants';
 import { SitemappingService } from './sitemapping-service';
 import { TextContentModel } from './../models/text-content';
 import { ObjectId } from 'mongodb';
@@ -26,6 +25,12 @@ export class TextContentService {
 
     getTextContentsByProjectId = async (projectId: ObjectId): Promise<TextContent[]> => {
         return textContentModel.getByProjectId(projectId);
+    }
+
+    getUnratedTextContentsByProjectId = async (projectId: ObjectId): Promise<TextContent[]> => {
+        const result = await textContentModel.getByProjectId(projectId);
+
+        return result.filter(textContent => textContent.rating.overall !== NO_RATING_VAL)
     }
 
     getTextContentsByProjectIdPaginated = async (projectId: ObjectId, page: number, count: number): Promise<TextContent[]> => {
