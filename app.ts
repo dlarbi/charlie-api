@@ -281,8 +281,8 @@ app.post('/rating/refresh-website', auth, async (req: IGetUserAuthInfoRequest, r
 	// TODO: Make this a job that kicks off later	
 	const results = await services.contentRatingService.unrateFailedTextContents(new ObjectId(projectId));
 	try {
-		services.contentRatingService.rateTextContents(results);
-
+		const rated = services.contentRatingService.rateTextContents(results);
+		console.log(rated, 'rated!')
 	} catch (e) {
 console.log(e);
 	}
