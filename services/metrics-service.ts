@@ -14,16 +14,15 @@ export class MetricsService {
     getProjectMetrics = async (projectId: ObjectId): Promise<ProjectMetrics> => {
         const project = await services.projectService.getProjectById(projectId);
         const textContents = await services.textContentService.getTextContentsByProjectId(project?._id || projectId);
-        if (projectId === new ObjectId("63cadcc8f293efa6c9348fad")) {
-            console.log({
-                total: textContents.length,
-                issues: this.textContentsToIssueCount(textContents),
-                score: this.textContentsToOverallScore(textContents),
-                projectStatus: this.textContentsToProjectStatus(textContents),
-                ratedCount: this.getRatedCount(textContents),
-                analysedAt: textContents[0]?.analysedAt
-            })
-        }
+        console.log(project.url, {
+            total: textContents.length,
+            issues: this.textContentsToIssueCount(textContents),
+            score: this.textContentsToOverallScore(textContents),
+            projectStatus: this.textContentsToProjectStatus(textContents),
+            ratedCount: this.getRatedCount(textContents),
+            analysedAt: textContents[0]?.analysedAt
+        })
+        
         return {
             total: textContents.length,
             issues: this.textContentsToIssueCount(textContents),
