@@ -92,13 +92,19 @@ export class ContentRatingService {
             rating = contentRater.getRatingError();
         }
 
-        const result = await services.textContentService.saveTextContent({
-            ...textContent,
-            rating,
-            analysedAt: new Date()
-        });
-        console.log('END rateTextContent');
-        return result;
+        try {
+            const result = await services.textContentService.saveTextContent({
+                ...textContent,
+                rating,
+                analysedAt: new Date()
+            });
+            console.log('END rateTextContent');
+            return result;
+
+        } catch (e) {
+            console.log('E', e)
+        }
+        
     };
 
     rateTextContents = async (content: TextContent[]): Promise<TextContent[]> => {
