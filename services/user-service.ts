@@ -185,5 +185,12 @@ export class UserService {
         const users = await userModel.getAll();
         return users;
     }
+
+    updateCustomerId = async (userId: ObjectId, customerId: string) => {
+        const user = await userModel.getById(userId);
+        user.stripeCustomerId = customerId;
+        await userModel.updateUser(userId, user);
+        return user;
+    }
 }
 

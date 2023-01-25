@@ -457,6 +457,28 @@ app.post('/user/free-account-type', auth, async (req: IGetUserAuthInfoRequest, r
 	  }
 });
 
+app.put('/user/:userId', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
+	try {
+		const { customerId, userId } = req.body;
+		const user = req.user;
+
+		masterAuth(user, res);
+
+		const updated = await services.userService.updateCustomerId(new ObjectId(userId), customerId);
+
+		res.status(200).json({
+		  message: `${userId} changed Stripe CustomerID to ${customerId}`,
+		  user: updated,
+		});
+	  } catch (err) {
+		console.log(String(err));
+		res.status(400).json({
+		  message: "There was an error updating the customer id",
+		  error: String(err),
+		});
+	  }
+})
+
 app.get('/user/list', auth, async (req: IGetUserAuthInfoRequest, res: express.Response) => {
 	try {
 		const { u, p } = req.body;
